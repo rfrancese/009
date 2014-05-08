@@ -91,12 +91,15 @@ public class MainActivity extends ActionBarActivity {
 				boolean internetPresentElectric = connectionDetectorElectric.isConnectingToInternet();
 				
 				if (internetPresentElectric) {
-					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("lightgrey")));
-					return true;
+					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("blue")));
+					this.map.clear();
+					this.electricRequest = new ElectricAsyncTask();
+					this.electricRequest.execute();
 				}
 			    else
-					Toast.makeText(getApplicationContext(), "No connection to Internet.", Toast.LENGTH_LONG).show();
-			
+					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+				return true;
+				
 			case R.id.action_gpl_filter:
 				//Toast.makeText(getBaseContext(), "Clicked on the gpl filter item.", Toast.LENGTH_LONG).show();
 				
@@ -104,11 +107,14 @@ public class MainActivity extends ActionBarActivity {
 				boolean internetPresentGPL = connectionDetectorGPL.isConnectingToInternet();
 				
 				if (internetPresentGPL) {
-					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("lightgrey")));
-					return true;
+					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("yellow")));
+					this.map.clear();
+					this.gplRequest = new GPLAsyncTask();
+					this.gplRequest.execute();
 				}
 			    else
-					Toast.makeText(getApplicationContext(), "No connection to Internet.", Toast.LENGTH_LONG).show();
+					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+				return true;
 			
 			case R.id.action_methane_filter:
 				//Toast.makeText(getBaseContext(), "Cliecked on the methane filter item.", Toast.LENGTH_LONG).show();
@@ -118,11 +124,13 @@ public class MainActivity extends ActionBarActivity {
 				
 				if (internetPresentMethane) {
 					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("lightgrey")));
-					return true;
+					this.map.clear();
+					this.methaneRequest = new MethaneAsyncTask();
+					this.methaneRequest.execute();
 				}
 			    else
-					Toast.makeText(getApplicationContext(), "No connection to Internet.", Toast.LENGTH_LONG).show();
-				
+					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
