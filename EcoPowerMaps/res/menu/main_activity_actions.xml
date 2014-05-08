@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
+    
+    <!-- L'ActionBar mostra al massimo 5 item -->
+    <item android:id="@+id/action_important"
+          android:title="@string/important_title"
+          android:icon="@drawable/ic_green_star"
+          android:orderInCategory="4"
+          app:showAsAction="always" />
+    <item android:id="@+id/action_electric_filter"
+          android:title="@string/electric_station_title"
+          android:icon="@drawable/ic_car_electricity"
+          android:orderInCategory="3"
+          app:showAsAction="always" />
+    <item android:id="@+id/action_gpl_filter"
+          android:title="@string/gpl_title"
+          android:icon="@drawable/ic_actionbar_logo"
+          android:orderInCategory="2"
+          app:showAsAction="always" />
+    <item android:id="@+id/action_methane_filter"
+          android:title="@string/methane_title"
+          android:icon="@drawable/ic_actionbar_logo"
+          android:orderInCategory="1"
+          app:showAsAction="always" />
+    <item android:id="@+id/action_settings"
+          android:title="@string/action_settings" 
+          app:showAsAction="ifRoom" />
+</menu>
