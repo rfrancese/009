@@ -62,9 +62,13 @@ public class MainActivity extends ActionBarActivity {
 		this.map = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 		map.setMyLocationEnabled(true);
 		
-		android.location.Location myLocation = map.getMyLocation();
+		/*android.location.Location myLocation = map.getMyLocation();
 		LatLng myPosition = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-		map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPosition, 5));
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPosition, 5));*/
+		
+		this.listElectricStations=new ArrayList<Location>();
+		this.listGPL=new ArrayList<Location>();
+		this.listMethane=new ArrayList<Location>();
 	}
 	
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
