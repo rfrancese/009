@@ -2,6 +2,11 @@ package com.neo.ecopowermapsv1;
 
 import java.util.ArrayList;
 
+
+
+
+
+
 import org.json.JSONArray;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -9,16 +14,23 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.location.Criteria;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.ActionBar;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -28,12 +40,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends ActionBarActivity {
-	
+
 	private GoogleMap map;
 	private ActionBar actionBar;
 	private ArrayList<Location>listMethane;
@@ -50,6 +66,11 @@ public class MainActivity extends ActionBarActivity {
 	private String address, price;
 	private String formattedAddress, provider, jacks, description;
 	private double navigateToLat, navigateToLong;
+	private int scelta=0;
+	private SensorService sensorService;
+	private ListView listView;
+	private CameraPosition camera; 
+	
 	
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,9 +83,33 @@ public class MainActivity extends ActionBarActivity {
 		this.map = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 		map.setMyLocationEnabled(true);
 		
-		/*android.location.Location myLocation = map.getMyLocation();
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        
+        android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        
+        if (location != null)
+        {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+            .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+            .zoom(11)                   // Sets the zoom
+            .bearing(90)                // Sets the orientation of the camera to east
+            .tilt(40)                   // Sets the tilt of the camera to 30 degrees
+            .build();                   // Creates a CameraPosition from the builder
+        
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            
+            sensorService=new SensorService(map);
+           
+        }
+		
+		
+		
+	/*	myLocation = map.getMyLocation();
 		LatLng myPosition = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-		map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPosition, 5));*/
+		map.animateCamera(CameraUpdateFactory.newLatLngZoom(myPosition, 5));*/
 		
 		this.listElectricStations=new ArrayList<Location>();
 		this.listGPL=new ArrayList<Location>();
@@ -89,51 +134,71 @@ public class MainActivity extends ActionBarActivity {
 				return true;
 			
 			case R.id.action_electric_filter:
+				
 				//Toast.makeText(getBaseContext(), "Clicked on the electric filter item.", Toast.LENGTH_LONG).show();
 				
 				ConnectionDetector connectionDetectorElectric = new ConnectionDetector(getApplicationContext());
 				boolean internetPresentElectric = connectionDetectorElectric.isConnectingToInternet();
 				
 				if (internetPresentElectric) {
-					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("blue")));
+					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1E90FF")));
 					this.map.clear();
 					this.electricRequest = new ElectricAsyncTask();
 					this.electricRequest.execute();
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+	
+				
 				return true;
+				
+				
 				
 			case R.id.action_gpl_filter:
 				//Toast.makeText(getBaseContext(), "Clicked on the gpl filter item.", Toast.LENGTH_LONG).show();
 				
+				//mi serve per il tipo di distributore
+				this.scelta=1;
 				ConnectionDetector connectionDetectorGPL = new ConnectionDetector(getApplicationContext());
 				boolean internetPresentGPL = connectionDetectorGPL.isConnectingToInternet();
 				
 				if (internetPresentGPL) {
-					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("yellow")));
+					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#DC143C")));
 					this.map.clear();
 					this.gplRequest = new GPLAsyncTask();
 					this.gplRequest.execute();
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+				
+				
+				
 				return true;
 			
 			case R.id.action_methane_filter:
 				//Toast.makeText(getBaseContext(), "Cliecked on the methane filter item.", Toast.LENGTH_LONG).show();
+					
 				
+				this.scelta=0;
 				ConnectionDetector connectionDetectorMethane = new ConnectionDetector(getApplicationContext());
 				boolean internetPresentMethane = connectionDetectorMethane.isConnectingToInternet();
 				
 				if (internetPresentMethane) {
-					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("lightgrey")));
+					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#2E8B57")));
 					this.map.clear();
 					this.methaneRequest = new MethaneAsyncTask();
 					this.methaneRequest.execute();
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+				
+				return true;
+				
+			case R.id.vista_setting:
+				
+				ChooseOption();
+
+
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -196,7 +261,7 @@ public class MainActivity extends ActionBarActivity {
 			 protected void onPostExecute(ArrayList<Location> list) {
 				 marker(list);
 				 dialog.dismiss();
-			 }
+			}
 			 
 			 protected void onPreExecute() {
 				 dialog = new ProgressDialog(MainActivity.this);
@@ -234,10 +299,6 @@ public class MainActivity extends ActionBarActivity {
 		}
 		
 		
-		
-		
-		
-		
 		//AsyncTask Colonnine Elettriche
 		public class ElectricAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
@@ -246,6 +307,7 @@ public class MainActivity extends ActionBarActivity {
 			 protected void onPostExecute(ArrayList<Location> list) {
 				 markerElectricStation(list);
 				 dialog.dismiss();
+				 
 			 }
 			 
 			 protected void onPreExecute() {
@@ -289,12 +351,6 @@ public class MainActivity extends ActionBarActivity {
 	
 	
 	
-	
-	
-	
-	
-	
-	
 	public void marker(ArrayList<Location> lista){
 			
 			for(int i=0;i<lista.size();i++){
@@ -309,7 +365,13 @@ public class MainActivity extends ActionBarActivity {
 				
 				LatLng coor= new LatLng(latitudine, longitudine);
 				
+				if(this.scelta==1)
+				
 				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€"));
+				
+				else
+					
+				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));	
 				
 				//map.setOnMarkerClickListener(this);
 				
@@ -343,22 +405,32 @@ public class MainActivity extends ActionBarActivity {
 		                		
 		                		//avvio il navigatore
 		                		
-		                		currentDialog=new Dialog(MainActivity.this);
-		                		currentDialog.setContentView(R.layout.scelta);
+		                		String[] names={"Vai al distributore","Salva nei preferiti"};
+		           			    currentDialog= new Dialog(MainActivity.this);
+		           			    currentDialog.setContentView(R.layout.scelta);
+		           			    currentDialog.setTitle("Cosa vuoi fare?");
+		           			    currentDialog.setCancelable(true);
+		           			    currentDialog.setCanceledOnTouchOutside(true);
+		           			    listView = (ListView) currentDialog.findViewById(R.id.lv);
 		                		
-		                		currentDialog.setTitle("Scegli cosa fare");
+		           			    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,names);
+		        		        listView.setAdapter(adapter);
 		                		
-		                		Button vai=(Button) currentDialog.findViewById(R.id.vaiqui);
-		                		Button pref=(Button) currentDialog.findViewById(R.id.pref);
-		                		
-		                		vai.setOnClickListener(l);
-		                		
+		        		        listView.setOnItemClickListener(new OnItemClickListener(){
+
+		        					@Override
+		        					public void onItemClick(AdapterView<?> parent, View view,
+		        							int position, long id) {
+		        						
+		        						if(position==0)
+		        							navigate();
+		        						
+		        							//else devo aggiungere nei preferiti
+		        						}
+		        	            	 });
 		                		currentDialog.show();
-								
 							}
-		                	
-		                	
-		                });
+		                 });
 						
 						return v;
 					}
@@ -369,14 +441,8 @@ public class MainActivity extends ActionBarActivity {
 						return null;
 					}
 					
-					
-					
-					});
-				
-				
+				});
 			}
-			
-			
 		}
 	
 	
@@ -396,10 +462,15 @@ public class MainActivity extends ActionBarActivity {
 				
 				LatLng coor= new LatLng(latitudine, longitudine);
 				
-				map.addMarker(new MarkerOptions().position(coor).title(this.formattedAddress).snippet("Provider: "+ this.provider
-																									+ "Prese: " + this.jacks
-																									+ "Descrizione: " + this.description));
+				if(description.equals("null"))
 				
+				
+						map.addMarker(new MarkerOptions().position(coor).title(this.formattedAddress).snippet("Provider: "+ this.provider
+								+ "\nPrese: " + this.jacks).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));																			
+				
+				else
+					map.addMarker(new MarkerOptions().position(coor).title(this.formattedAddress).snippet("Provider: "+ this.provider+ "\nPrese: " + this.jacks+ "\nDescrizione: " + this.description).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+					
 				//map.setOnMarkerClickListener(this);
 				
 				//creo la finestra delle info
@@ -432,18 +503,33 @@ public class MainActivity extends ActionBarActivity {
 		                		
 		                		//avvio il navigatore
 		                		
-		                		currentDialog=new Dialog(MainActivity.this);
-		                		currentDialog.setContentView(R.layout.scelta);
+		                		String[] names={"Vai al distributore","Salva nei preferiti"};
+		           			    currentDialog= new Dialog(MainActivity.this);
+		           			    currentDialog.setContentView(R.layout.scelta);
+		           			    currentDialog.setTitle("Cosa vuoi fare?");
+		           			    currentDialog.setCancelable(true);
+		           			    currentDialog.setCanceledOnTouchOutside(true);
+		           			    listView = (ListView) currentDialog.findViewById(R.id.lv);
 		                		
-		                		currentDialog.setTitle("Scegli cosa fare");
+		           			    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,names);
+		        		        listView.setAdapter(adapter);
 		                		
-		                		Button vai=(Button) currentDialog.findViewById(R.id.vaiqui);
-		                		Button pref=(Button) currentDialog.findViewById(R.id.pref);
-		                		
-		                		vai.setOnClickListener(l);
+		        		        listView.setOnItemClickListener(new OnItemClickListener(){
+
+		        					@Override
+		        					public void onItemClick(AdapterView<?> parent, View view,
+		        							int position, long id) {
+		        						
+		        						if(position==0)
+		        							navigate();
+		        						
+		        							//else devo aggiungere nei preferiti
+		        							
+		        					}
+		        	            	 
+		        	           });
 		                		
 		                		currentDialog.show();
-								
 							}
 		                	
 		                	
@@ -466,21 +552,80 @@ public class MainActivity extends ActionBarActivity {
 			}
 		}
 		
-		public OnClickListener l= new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				
-				currentDialog.dismiss();
-				
-				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ navigateToLat + ","+ navigateToLong));
 		
-				startActivity(i);
+		public void navigate(){
 			
-			}
+			
+			currentDialog.dismiss();
+			
+			Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ navigateToLat + ","+ navigateToLong));
+	
+			startActivity(i);
+			
+		}
+		
+		//funzione che mi permette la creazione di un alert per la funzionalità vista
+		public void ChooseOption(){
+			
+			AlertDialog.Builder builder= new AlertDialog.Builder(this);
+			
+			builder.setTitle("Informazione");
+			
+			builder.setMessage("Tale funzione permette di cambiare lo stile della mappa scuotendo il device. Vuoi attivare questa funzione?");
+			
+			builder.setCancelable(false);
+			
+			builder.setPositiveButton("SI", new android.content.DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Toast.makeText(getBaseContext(), "Scuoti il device per cambiare lo stile!", Toast.LENGTH_LONG).show();
+                    sensorService.activate(MainActivity.this);
+				}
+			});
+			
+			builder.setNegativeButton("NO", new android.content.DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					Toast.makeText(getBaseContext(), "Hai disattivato la funzione!", Toast.LENGTH_LONG).show();
+                    sensorService.deActivate();
+				}
+			});
+			AlertDialog alert= builder.create();
+			alert.show();
+		}
+		
+		
+		//cerco di gestire la rotazione della mappa
+		
+		@Override
+		protected void onPause() {
+			// TODO Auto-generated method stub
+			super.onPause();
+			
+			this.camera=map.getCameraPosition();
+    
+		}
 
+		@Override
+		protected void onResume() {
+			// TODO Auto-generated method stub
+			super.onResume();
 			
-		};
-	 
+			if(this.camera!=null)
+				map.moveCamera(CameraUpdateFactory.newCameraPosition(this.camera));
+	            
+			this.camera=null;
+			
+			
+			/*if(this.actual.size()>1000)
+				marker(this.actual);
+			else
+				markerElectricStation(this.actual);*/
+
+	       }
+		
 	
 }

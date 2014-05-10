@@ -3,9 +3,10 @@
 
     <string name="app_name">EcoPowerMaps</string>
     <string name="action_settings">Settings</string>
-    <string name="gpl_title">Filter Map to GPL</string>
-    <string name="methane_title">Filter Map to Mathane</string>
-    <string name="electric_station_title">Filter Map to Electric Stations</string>
+    <string name="gpl_title">GPL</string>
+    <string name="methane_title">Metano</string>
+    <string name="electric_station_title">Electric Stations</string>
     <string name="important_title">Add to Favorite</string>
-
+    <string name="vista">Vista</string>
+    
 </resources>
