@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 
 
+
 import org.json.JSONArray;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -149,11 +150,13 @@ public class MainActivity extends ActionBarActivity {
 						this.map.clear();
 						this.electricRequest = new ElectricAsyncTask();
 						this.electricRequest.execute();
+						
 					}
 					else
 						Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
 	
 				} else {
+					this.map.clear();
 					this.putElectricMarkersRequest = new PutElectricMarkersAsyncTask();
 					this.putElectricMarkersRequest.execute();
 				}
@@ -181,6 +184,7 @@ public class MainActivity extends ActionBarActivity {
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
 				} else {
+					this.map.clear();
 					this.putGPLMarkersRequest = new PutGPLMarkersAsyncTask();
 					this.putGPLMarkersRequest.execute();
 				}
@@ -206,6 +210,7 @@ public class MainActivity extends ActionBarActivity {
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
 				} else {
+					this.map.clear();
 					this.putMethaneMarkersRequest = new PutMethaneMarkersAsyncTask();
 					this.putMethaneMarkersRequest.execute();
 				}
@@ -282,7 +287,7 @@ public class MainActivity extends ActionBarActivity {
 			 
 			 protected void onPreExecute() {
 				 dialog = new ProgressDialog(MainActivity.this);
-		         dialog.setCancelable(true);
+		         dialog.setCancelable(false);
 		         dialog.setTitle("Caricamento");
 		         dialog.setMessage("Sto contattando il server...");
 		         dialog.show();
@@ -366,37 +371,86 @@ public class MainActivity extends ActionBarActivity {
 			 }
 		}
 	
-		public class PutMethaneMarkersAsyncTask extends AsyncTask<Void, Void, Void> {
+		public class PutMethaneMarkersAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 			 private ProgressDialog dialog;
 
-			 protected void onPostExecute() {
+			 protected void onPostExecute(ArrayList<Location>list) {
+				 marker(list);
+				 methaneRequest.cancel(true);
 				 dialog.dismiss();
 				 
 			 }
 			 
 			 protected void onPreExecute() {
 				 dialog = new ProgressDialog(MainActivity.this);
-		         dialog.setCancelable(true);
+		         dialog.setCancelable(false);
 		         dialog.setTitle("Caricamento");
 		         dialog.setMessage("Sto caricando i dati...");
 		         dialog.show();
 		     }
 
 			@Override
-			protected Void doInBackground(Void... params) {
-				marker(listMethane);
-				return null;
+			protected ArrayList<Location> doInBackground(Void... params) {
+				
+				try {
+					actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#2E8B57")));
+                    
+				} catch (Exception e) {
+					 e.printStackTrace();
+				 }
+				
+				return listMethane;
+			}
+			
+		}
+		
+		public class PutGPLMarkersAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
+
+			private ProgressDialog dialog;
+			
+			@Override
+			protected void onPreExecute() {
+				 dialog = new ProgressDialog(MainActivity.this);
+		         dialog.setCancelable(true);
+		         dialog.setTitle("Caricamento");
+		         dialog.setMessage("Sto caricando i dati...");
+		         dialog.show();
+			}
+
+
+              @Override
+				protected void onPostExecute(ArrayList<Location> result) {
+					
+            	marker(result);
+            	gplRequest.cancel(true);
+				dialog.dismiss();
+				}
+			 
+			 
+			@Override
+			protected ArrayList<Location> doInBackground(Void... params) {
+				
+				try{
+				actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#DC143C")));
+                
+				}catch (Exception e) {
+					 e.printStackTrace();
+				 }
+				
+				return listGPL;
 			}
 			 
 			 
 		}
 		
-		public class PutGPLMarkersAsyncTask extends AsyncTask<Void, Void, Void> {
+		public class PutElectricMarkersAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 			 private ProgressDialog dialog;
 
-			 protected void onPostExecute() {
+			 protected void onPostExecute(ArrayList<Location> list) {
+				 markerElectricStation(list);
+				 electricRequest.cancel(true);
 				 dialog.dismiss();
 				 
 			 }
@@ -410,44 +464,22 @@ public class MainActivity extends ActionBarActivity {
 		     }
 
 			@Override
-			protected Void doInBackground(Void... params) {
-				marker(listGPL);
-				return null;
+			protected ArrayList<Location> doInBackground(Void... params) {
+				
+				try{
+					
+					actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1E90FF")));
+                 
+				}catch (Exception e) {
+					 e.printStackTrace();
+				 }
+				
+				return listElectricStations;
 			}
-			 
-			 
-		}
-		
-		public class PutElectricMarkersAsyncTask extends AsyncTask<Void, Void, Void> {
-
-			 private ProgressDialog dialog;
-
-			 protected void onPostExecute() {
-				 dialog.dismiss();
-				 
-			 }
-			 
-			 protected void onPreExecute() {
-				 dialog = new ProgressDialog(MainActivity.this);
-		         dialog.setCancelable(true);
-		         dialog.setTitle("Caricamento");
-		         dialog.setMessage("Sto caricando i dati...");
-		         dialog.show();
-		     }
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				markerElectricStation(listElectricStations);
-				return null;
-			}
-			 
 			 
 		}
 
-
-
-	
-	public void marker(ArrayList<Location> lista){
+public void marker(ArrayList<Location> lista){
 			
 			for(int i=0;i<lista.size();i++){
 				
