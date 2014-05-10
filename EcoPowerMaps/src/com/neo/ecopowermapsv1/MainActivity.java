@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 
 
+
 import org.json.JSONArray;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -70,6 +71,9 @@ public class MainActivity extends ActionBarActivity {
 	private SensorService sensorService;
 	private ListView listView;
 	private CameraPosition camera; 
+	private PutElectricMarkersAsyncTask putElectricMarkersRequest;
+	private PutMethaneMarkersAsyncTask putMethaneMarkersRequest;
+	private PutGPLMarkersAsyncTask putGPLMarkersRequest;
 	
 	
 	@Override protected void onCreate(Bundle savedInstanceState) {
@@ -136,20 +140,23 @@ public class MainActivity extends ActionBarActivity {
 			case R.id.action_electric_filter:
 				
 				//Toast.makeText(getBaseContext(), "Clicked on the electric filter item.", Toast.LENGTH_LONG).show();
+				if (this.listElectricStations.size() == 0) {
+					ConnectionDetector connectionDetectorElectric = new ConnectionDetector(getApplicationContext());
+					boolean internetPresentElectric = connectionDetectorElectric.isConnectingToInternet();
 				
-				ConnectionDetector connectionDetectorElectric = new ConnectionDetector(getApplicationContext());
-				boolean internetPresentElectric = connectionDetectorElectric.isConnectingToInternet();
-				
-				if (internetPresentElectric) {
-					this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1E90FF")));
-					this.map.clear();
-					this.electricRequest = new ElectricAsyncTask();
-					this.electricRequest.execute();
-				}
-			    else
-					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+					if (internetPresentElectric) {
+						this.actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1E90FF")));
+						this.map.clear();
+						this.electricRequest = new ElectricAsyncTask();
+						this.electricRequest.execute();
+					}
+					else
+						Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
 	
-				
+				} else {
+					this.putElectricMarkersRequest = new PutElectricMarkersAsyncTask();
+					this.putElectricMarkersRequest.execute();
+				}
 				return true;
 				
 				
@@ -159,6 +166,9 @@ public class MainActivity extends ActionBarActivity {
 				
 				//mi serve per il tipo di distributore
 				this.scelta=1;
+				
+				if (this.listGPL.size() == 0) {
+				
 				ConnectionDetector connectionDetectorGPL = new ConnectionDetector(getApplicationContext());
 				boolean internetPresentGPL = connectionDetectorGPL.isConnectingToInternet();
 				
@@ -170,7 +180,10 @@ public class MainActivity extends ActionBarActivity {
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
-				
+				} else {
+					this.putGPLMarkersRequest = new PutGPLMarkersAsyncTask();
+					this.putGPLMarkersRequest.execute();
+				}
 				
 				
 				return true;
@@ -180,6 +193,7 @@ public class MainActivity extends ActionBarActivity {
 					
 				
 				this.scelta=0;
+				if (this.listMethane.size() == 0) {
 				ConnectionDetector connectionDetectorMethane = new ConnectionDetector(getApplicationContext());
 				boolean internetPresentMethane = connectionDetectorMethane.isConnectingToInternet();
 				
@@ -191,7 +205,10 @@ public class MainActivity extends ActionBarActivity {
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
-				
+				} else {
+					this.putMethaneMarkersRequest = new PutMethaneMarkersAsyncTask();
+					this.putMethaneMarkersRequest.execute();
+				}
 				return true;
 				
 			case R.id.vista_setting:
@@ -349,7 +366,86 @@ public class MainActivity extends ActionBarActivity {
 			 }
 		}
 	
-	
+		public class PutMethaneMarkersAsyncTask extends AsyncTask<Void, Void, Void> {
+
+			 private ProgressDialog dialog;
+
+			 protected void onPostExecute() {
+				 dialog.dismiss();
+				 
+			 }
+			 
+			 protected void onPreExecute() {
+				 dialog = new ProgressDialog(MainActivity.this);
+		         dialog.setCancelable(true);
+		         dialog.setTitle("Caricamento");
+		         dialog.setMessage("Sto caricando i dati...");
+		         dialog.show();
+		     }
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				marker(listMethane);
+				return null;
+			}
+			 
+			 
+		}
+		
+		public class PutGPLMarkersAsyncTask extends AsyncTask<Void, Void, Void> {
+
+			 private ProgressDialog dialog;
+
+			 protected void onPostExecute() {
+				 dialog.dismiss();
+				 
+			 }
+			 
+			 protected void onPreExecute() {
+				 dialog = new ProgressDialog(MainActivity.this);
+		         dialog.setCancelable(true);
+		         dialog.setTitle("Caricamento");
+		         dialog.setMessage("Sto caricando i dati...");
+		         dialog.show();
+		     }
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				marker(listGPL);
+				return null;
+			}
+			 
+			 
+		}
+		
+		public class PutElectricMarkersAsyncTask extends AsyncTask<Void, Void, Void> {
+
+			 private ProgressDialog dialog;
+
+			 protected void onPostExecute() {
+				 dialog.dismiss();
+				 
+			 }
+			 
+			 protected void onPreExecute() {
+				 dialog = new ProgressDialog(MainActivity.this);
+		         dialog.setCancelable(true);
+		         dialog.setTitle("Caricamento");
+		         dialog.setMessage("Sto caricando i dati...");
+		         dialog.show();
+		     }
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				markerElectricStation(listElectricStations);
+				return null;
+			}
+			 
+			 
+		}
+
+
+
 	
 	public void marker(ArrayList<Location> lista){
 			
