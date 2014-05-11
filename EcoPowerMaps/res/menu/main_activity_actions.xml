@@ -23,7 +23,13 @@
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings" 
           app:showAsAction="ifRoom" />
-     <item android:id="@+id/vista_setting"
+    <item android:id="@+id/vista_setting"
           android:title="@string/vista" 
+          app:showAsAction="ifRoom" />
+    <item android:id="@+id/to_the_nearest_service"
+          android:title="@string/to_the_nearest"
+          app:showAsAction="ifRoom" />
+    <item android:id="@+id/to_the_least_expensive_service"
+          android:title="@string/to_the_least_expensive"
           app:showAsAction="ifRoom" />
 </menu>

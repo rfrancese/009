@@ -2,13 +2,6 @@ package com.neo.ecopowermapsv1;
 
 import java.util.ArrayList;
 
-
-
-
-
-
-
-
 import org.json.JSONArray;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,26 +18,31 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.ActionBar;
+
 import android.location.Criteria;
 import android.location.LocationManager;
 import android.net.Uri;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.ActionBar;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+
 import android.support.v7.app.ActionBarActivity;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,34 +52,48 @@ public class MainActivity extends ActionBarActivity {
 
 	private GoogleMap map;
 	private ActionBar actionBar;
+	
 	private ArrayList<Location>listMethane;
 	private ArrayList<Location>listGPL;
 	private ArrayList<Location>listElectricStations;
-	private final String methaneURLRequest = "http://fanteam.altervista.org/request_methane_data.php";
-	private final String gplURLRequest = "http://fanteam.altervista.org/request_gpl_data.php";
+	
+	private final String methaneURLRequest 	= "http://fanteam.altervista.org/request_methane_data.php";
+	private final String gplURLRequest 		= "http://fanteam.altervista.org/request_gpl_data.php";
 	private final String electricURLRequest = "http://fanteam.altervista.org/request_electric_stations_data.php";
+	
 	private Dialog currentDialog;
+	
 	private JSONRequest jsonRequest;
+	
 	private MethaneAsyncTask methaneRequest;
 	private GPLAsyncTask gplRequest;
 	private ElectricAsyncTask electricRequest;
+	
 	private String address, price;
 	private String formattedAddress, provider, jacks, description;
+	
 	private double navigateToLat, navigateToLong;
-	private int scelta=0;
+	
+	private int scelta = 0;
+	
 	private SensorService sensorService;
+	
 	private ListView listView;
+	
 	private CameraPosition camera; 
+	
 	private PutElectricMarkersAsyncTask putElectricMarkersRequest;
 	private PutMethaneMarkersAsyncTask putMethaneMarkersRequest;
 	private PutGPLMarkersAsyncTask putGPLMarkersRequest;
+	
+	private int currentFilter;
 	
 	
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		/* Con il metodo hide() è possibile nascondere la ActionBar*/
+		/* Con il metodo hide() è possibile nascondere la ActionBar */
 		this.actionBar = getActionBar();
 		this.actionBar.show();
 		
@@ -150,6 +162,7 @@ public class MainActivity extends ActionBarActivity {
 						this.map.clear();
 						this.electricRequest = new ElectricAsyncTask();
 						this.electricRequest.execute();
+						this.currentFilter = 1;
 						
 					}
 					else
@@ -159,6 +172,7 @@ public class MainActivity extends ActionBarActivity {
 					this.map.clear();
 					this.putElectricMarkersRequest = new PutElectricMarkersAsyncTask();
 					this.putElectricMarkersRequest.execute();
+					this.currentFilter = 1;
 				}
 				return true;
 				
@@ -180,6 +194,7 @@ public class MainActivity extends ActionBarActivity {
 					this.map.clear();
 					this.gplRequest = new GPLAsyncTask();
 					this.gplRequest.execute();
+					this.currentFilter = 2;
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
@@ -187,6 +202,7 @@ public class MainActivity extends ActionBarActivity {
 					this.map.clear();
 					this.putGPLMarkersRequest = new PutGPLMarkersAsyncTask();
 					this.putGPLMarkersRequest.execute();
+					this.currentFilter = 2;
 				}
 				
 				
@@ -206,6 +222,7 @@ public class MainActivity extends ActionBarActivity {
 					this.map.clear();
 					this.methaneRequest = new MethaneAsyncTask();
 					this.methaneRequest.execute();
+					this.currentFilter = 3;
 				}
 			    else
 					Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
@@ -213,6 +230,7 @@ public class MainActivity extends ActionBarActivity {
 					this.map.clear();
 					this.putMethaneMarkersRequest = new PutMethaneMarkersAsyncTask();
 					this.putMethaneMarkersRequest.execute();
+					this.currentFilter = 3;
 				}
 				return true;
 				
@@ -222,6 +240,137 @@ public class MainActivity extends ActionBarActivity {
 
 
 				return true;
+				
+			case R.id.to_the_nearest_service:
+				//Toast.makeText(getApplicationContext(), "Richiesta del servizio: Portami alla più vicina.", Toast.LENGTH_SHORT).show();
+				
+				//Verifico se l'utente ha selezionato un filtro
+				if (this.listElectricStations.size() != 0 || this.listGPL.size() != 0 || this.listMethane.size() != 0) {
+					
+					//Verifica della presenza della connessione ad Internet
+					ConnectionDetector connectionDetector = new ConnectionDetector(getApplicationContext());
+					boolean internetPresent = connectionDetector.isConnectingToInternet();
+				
+					if (internetPresent) {
+						//Indice dell'elemento che rappresenta la distanza lineare più breve
+						int lowerDistanceIndex;
+						
+						//Conterrà la distanza più breve
+						double lowerDistanceValue;	
+						
+						//ArrayList delle distanze calcolate
+						ArrayList<Double> distancesArrey = new ArrayList<Double>(); 
+						
+						//Info sul marker più vicino
+						double nearestMarkerLatitude = 0;
+						double nearestMarkerLongitude = 0;
+						
+						//Acquisisco le informazioni sulla posizione attuale 
+						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+						Criteria criteria = new Criteria();
+						android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+						
+						ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
+						
+						//Verifico quale filtro è stato selezionato per ultimo
+						switch (this.currentFilter) {
+							//Colonnine elettriche
+			        		case 1:
+			        			//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
+			        			double initialMarkerLatitude  = Double.parseDouble(this.listElectricStations.get(0).getLatitude());
+		        				double initialMarkerLongitude = Double.parseDouble(this.listElectricStations.get(0).getLongitude());
+		        				double initialDistance = distanceBetween.distance(location.getLatitude(), initialMarkerLatitude, location.getLongitude(), initialMarkerLongitude);
+								lowerDistanceIndex = 0;
+								lowerDistanceValue = initialDistance;
+			        			
+			        			double tempDistance;
+			        			
+			        			for (int i = 1; i < this.listElectricStations.size(); i++) {
+			        				double markerLatitude  = Double.parseDouble(this.listElectricStations.get(i).getLatitude());
+			        				double markerLongitude = Double.parseDouble(this.listElectricStations.get(i).getLongitude());
+			        				
+			        				tempDistance = distanceBetween.distance(location.getLatitude(), markerLatitude, location.getLongitude(), markerLongitude);
+			        				distancesArrey.add(tempDistance);
+			        			}
+			        			
+			        			for (int i = 0; i < distancesArrey.size(); i++) {
+			        				if (distancesArrey.get(i) < lowerDistanceValue)
+			        					lowerDistanceValue = distancesArrey.get(i);
+			        					lowerDistanceIndex = i;
+			        			}
+			        			
+			        			//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
+			        			nearestMarkerLatitude  = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLatitude());
+			        			nearestMarkerLongitude = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLongitude());
+			        		
+			        		//GPL
+			        		case 2:
+			        			//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
+			        			double initialMarkerLatitudeGPL  = Double.parseDouble(this.listGPL.get(0).getLatitude());
+		        				double initialMarkerLongitudeGPL = Double.parseDouble(this.listGPL.get(0).getLongitude());
+		        				double initialDistanceGPL = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeGPL, location.getLongitude(), initialMarkerLongitudeGPL);
+								lowerDistanceIndex = 0;
+								lowerDistanceValue = initialDistanceGPL;
+			        			
+			        			double tempDistanceGPL;
+			        			
+			        			for (int i = 1; i < this.listGPL.size(); i++) {
+			        				double markerLatitude  = Double.parseDouble(this.listGPL.get(i).getLatitude());
+			        				double markerLongitude = Double.parseDouble(this.listGPL.get(i).getLongitude());
+			        				
+			        				tempDistanceGPL = distanceBetween.distance(location.getLatitude(), markerLatitude, location.getLongitude(), markerLongitude);
+			        				distancesArrey.add(tempDistanceGPL);
+			        			}
+			        			
+			        			for (int i = 0; i < distancesArrey.size(); i++) {
+			        				if (distancesArrey.get(i) < lowerDistanceValue)
+			        					lowerDistanceValue = distancesArrey.get(i);
+			        					lowerDistanceIndex = i;
+			        			}
+			        			
+			        			//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
+			        			nearestMarkerLatitude  = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLatitude());
+			        			nearestMarkerLongitude = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLongitude());
+			        			
+			        		//Methane
+			        		case 3:
+			        			//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
+			        			double initialMarkerLatitudeMethane  = Double.parseDouble(this.listMethane.get(0).getLatitude());
+		        				double initialMarkerLongitudeMethane = Double.parseDouble(this.listMethane.get(0).getLongitude());
+		        				double initialDistanceMethane = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeMethane, location.getLongitude(), initialMarkerLongitudeMethane);
+								lowerDistanceIndex = 0;
+								lowerDistanceValue = initialDistanceMethane;
+			        			
+			        			double tempDistanceMethane;
+			        			
+			        			for (int i = 1; i < this.listMethane.size(); i++) {
+			        				double markerLatitude  = Double.parseDouble(this.listMethane.get(i).getLatitude());
+			        				double markerLongitude = Double.parseDouble(this.listMethane.get(i).getLongitude());
+			        				
+			        				tempDistanceMethane = distanceBetween.distance(location.getLatitude(), markerLatitude, location.getLongitude(), markerLongitude);
+			        				distancesArrey.add(tempDistanceMethane);
+			        			}
+			        			
+			        			for (int i = 0; i < distancesArrey.size(); i++) {
+			        				if (distancesArrey.get(i) < lowerDistanceValue)
+			        					lowerDistanceValue = distancesArrey.get(i);
+			        					lowerDistanceIndex = i;
+			        			}
+			        			
+			        			//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
+			        			nearestMarkerLatitude  = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLatitude());
+			        			nearestMarkerLongitude = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLongitude());
+						}
+						
+						//Avvio il servizio di navigazione
+						Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
+						startActivity(intent);
+						
+					} else 
+						Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+				} else
+					Toast.makeText(getApplicationContext(), "È necessario selezionare un filtro.", Toast.LENGTH_SHORT).show();
+				
 		}
 		return super.onOptionsItemSelected(item);
 	}

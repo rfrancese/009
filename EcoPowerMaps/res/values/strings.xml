@@ -8,5 +8,7 @@
     <string name="electric_station_title">Electric Stations</string>
     <string name="important_title">Add to Favorite</string>
     <string name="vista">Vista</string>
+    <string name="to_the_nearest">Alla più vicina</string>
+    <string name="to_the_least_expensive">Alla meno cara</string>
     
 </resources>
