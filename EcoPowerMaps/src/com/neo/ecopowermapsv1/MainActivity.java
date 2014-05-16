@@ -1,7 +1,9 @@
 package com.neo.ecopowermapsv1;
 
 import java.util.ArrayList;
+
 import org.json.JSONArray;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -12,6 +14,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -133,7 +136,45 @@ public class MainActivity extends ActionBarActivity {
 				return true;
 			
 			case R.id.action_important:
-				Toast.makeText(getBaseContext(), "Clicked on the add to favorite item.", Toast.LENGTH_LONG).show();
+				//se premo i preferiti
+				LocationManager locationManagerFavourite = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		        Criteria criteriaFavourite = new Criteria();
+		        android.location.Location locationFavourite = locationManagerFavourite.getLastKnownLocation(locationManagerFavourite.getBestProvider(criteriaFavourite, false));
+		        //mi creo un oggetto location sulla mia posizione
+		        if(locationFavourite!=null){
+		        	//chiedo se davvero vuole aggiungere la sua posizione ai preferiti
+		        	AlertDialog.Builder builder= new AlertDialog.Builder(this);
+					builder.setTitle("Informazione");
+					builder.setMessage("Vuoi aggiungere la tua posizione attuale come preferito?");
+					builder.setCancelable(false);
+					builder.setPositiveButton("Si", new android.content.DialogInterface.OnClickListener(){
+                        //se la vuole aggiungere
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							
+							LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+					        Criteria criteria = new Criteria();
+					        android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+					        
+							String latitude=String.valueOf(location.getLatitude());
+						    String longitude=String.valueOf(location.getLongitude()); 
+							
+						    // creo un Intent che mi apre una seconda activity per aggiungere al db
+						    Intent addPref = new Intent(MainActivity.this, EditFavourite.class);
+						    addPref.putExtra("latitudine", latitude);
+						    addPref.putExtra("longitudine", longitude);
+						    startActivity(addPref); //cosi' aggiungo la sua posizione ai preferiti
+						}
+					});
+					
+					builder.setNegativeButton("No", null);
+                    AlertDialog alert= builder.create();
+					alert.show();
+		        } else{
+		        	//se location è null il GPS non ha ancora acquisito la posizione
+		        	Toast.makeText(this, "Il segnale GPS non è stabile", Toast.LENGTH_LONG).show();
+		        }
 				return true;
 			
 			case R.id.action_electric_filter:
@@ -217,6 +258,15 @@ public class MainActivity extends ActionBarActivity {
 				
 				ChooseOption();
 				return true;
+			
+			//nel caso in cui premo Preferiti apro l'activity dei preferiti	
+			case R.id.favourite_setting:
+				
+				Intent lista = new Intent(MainActivity.this, FavouriteList.class);
+				startActivity(lista);
+				
+				return true;
+					
 				
 			case R.id.to_the_nearest_service:
 				
@@ -662,6 +712,14 @@ public class MainActivity extends ActionBarActivity {
 		        		    		if(position == 0)
 		        		    			navigate();
 		        					//else devo aggiungere nei preferiti
+		        		    		else{
+	        							
+	        							Intent addPref = new Intent(MainActivity.this, EditFavourite.class);
+		       						    addPref.putExtra("latitudine", String.valueOf(navigateToLat));
+		       						    addPref.putExtra("longitudine", String.valueOf(navigateToLong));
+		       						    currentDialog.dismiss();
+		       						    startActivity(addPref);
+	        						}
 		        				}
 		        	        });
 		                	
@@ -753,6 +811,14 @@ public class MainActivity extends ActionBarActivity {
 		        					if(position == 0)
 		        						navigate();
 		        					//else devo aggiungere nei preferiti
+		        					else{
+		        						
+		        						 Intent addPref = new Intent(MainActivity.this, EditFavourite.class);
+		       						     addPref.putExtra("latitudine", String.valueOf(navigateToLat));
+		       						     addPref.putExtra("longitudine", String.valueOf(navigateToLong));
+		       						     currentDialog.dismiss();
+		       						     startActivity(addPref);
+		        						}
 		        				}
 		        	        });
 		                		

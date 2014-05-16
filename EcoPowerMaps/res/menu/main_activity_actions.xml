@@ -32,4 +32,7 @@
     <item android:id="@+id/to_the_least_expensive_service"
           android:title="@string/to_the_least_expensive"
           app:showAsAction="ifRoom" />
+    <item android:id="@+id/favourite_setting"
+          android:title="@string/favourite" 
+          app:showAsAction="ifRoom" />
 </menu>

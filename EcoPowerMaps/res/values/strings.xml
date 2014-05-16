@@ -10,5 +10,21 @@
     <string name="vista">Vista</string>
     <string name="to_the_nearest">Alla più vicina</string>
     <string name="to_the_least_expensive">Alla meno cara</string>
+    <string name="menuitem_edit_contact">Modifica</string>
+    <string name="menuitem_delete_contact">Elimina</string>
+    <string name="confirmTitle">Eliminare Preferito</string>
+    <string name="confirmMessage">Sei sicuro di voler eliminare questo preferito?</string>
+    <string name="button_delete">Si,sono sicuro</string>
+    <string name="button_cancel">No,non eliminare</string>
+    <string name="hint_name">Nome Preferito</string>
+    <string name="button_save_contact">Salva</string>
+    <string name="errorTitle">Attenzione!</string>
+    <string name="errorMessage">Hai inserito un nome non valido!</string>
+    <string name="errorButton">Ho capito</string>
+    <string name="favourite">Preferiti</string>
+    <string name="menuitem_navigate_contact">Naviga</string>
+    <string name="label_latitude">Latitudine</string>
+    <string name="label_longitude">Longitudine</string>
+    <string name="label_name">Nome</string>
     
 </resources>
