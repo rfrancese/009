@@ -1,7 +1,6 @@
 package com.neo.ecopowermapsv1;
 
 import android.app.Activity;
-
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,7 +17,8 @@ public class EditFavourite extends Activity{
 	   private EditText nameEditText;
 	   private String latitude;
 	   private String longitude;
-	   private Bundle extras;
+	   @SuppressWarnings("unused")
+	private Bundle extras;
 	   
 	   
 	   // chiamato quando inizia l'activity

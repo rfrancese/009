@@ -11,7 +11,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 public class JSONRequest {
-	
 	 //Classe che mi serve per la connessione
 	 public String getTextFromUrl(String url) {
 	        String json = null;

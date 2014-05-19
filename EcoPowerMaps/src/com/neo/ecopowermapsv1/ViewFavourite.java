@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+@SuppressWarnings("unused")
 public class ViewFavourite extends ActionBarActivity{
 	
 	 private long rowID; // seleziona la riga del preferito

@@ -3,6 +3,8 @@ package com.neo.ecopowermapsv1;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -54,6 +56,7 @@ public class MainActivity extends ActionBarActivity {
 	private final String methaneURLRequest 	= "http://fanteam.altervista.org/request_methane_data.php";
 	private final String gplURLRequest 		= "http://fanteam.altervista.org/request_gpl_data.php";
 	private final String electricURLRequest = "http://fanteam.altervista.org/request_electric_stations_data.php";
+	private final String nearestServiceURL  = "https://maps.googleapis.com/maps/api/distancematrix/json?";
 	
 	private Dialog currentDialog;
 	
@@ -79,6 +82,10 @@ public class MainActivity extends ActionBarActivity {
 	private PutElectricMarkersAsyncTask putElectricMarkersRequest;
 	private PutMethaneMarkersAsyncTask putMethaneMarkersRequest;
 	private PutGPLMarkersAsyncTask putGPLMarkersRequest;
+	
+	private NearestElectricAsyncTask nearestElectricService;
+	private NearestGPLAsyncTask nearestGPLService;
+	private NearestMethaneAsyncTask nearestMethaneService;
 	
 	private int currentFilter; 
 	
@@ -171,7 +178,7 @@ public class MainActivity extends ActionBarActivity {
 					builder.setNegativeButton("No", null);
                     AlertDialog alert= builder.create();
 					alert.show();
-		        } else{
+		        } else {
 		        	//se location è null il GPS non ha ancora acquisito la posizione
 		        	Toast.makeText(this, "Il segnale GPS non è stabile", Toast.LENGTH_LONG).show();
 		        }
@@ -281,142 +288,171 @@ public class MainActivity extends ActionBarActivity {
 				
 					if (internetPresent) {
 						//Indice dell'elemento che rappresenta la distanza lineare più breve
-						int lowerDistanceIndex;
+						//int lowerDistanceIndex;
 						
 						//Conterrà la distanza più breve
-						double lowerDistanceValue;	
+						//double lowerDistanceValue;	
 						
 						//ArrayList delle distanze calcolate
-						ArrayList<Double> distancesArrey = new ArrayList<Double>(); 
+						//ArrayList<Double> distancesArrey = new ArrayList<Double>(); 
 						
 						//Info sul marker più vicino
-						double nearestMarkerLatitude = 0;
-						double nearestMarkerLongitude = 0;
+						//double nearestMarkerLatitude = 0;
+						//double nearestMarkerLongitude = 0;
 						
 						//Acquisisco le informazioni sulla posizione attuale 
 						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 						Criteria criteria = new Criteria();
 						android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+						if (location != null) {
+							//ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
 						
-						ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
-						
-						//Agisco in base all'ultimo filtro che è stato selezionato per ultimo
-						switch (this.currentFilter) {
-							//Colonnine elettriche
-			        		case 1:
-			        			//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
-			        			double initialMarkerLatitudeEle  = Double.parseDouble(this.listElectricStations.get(0).getLatitude());
-		        				double initialMarkerLongitudeEle = Double.parseDouble(this.listElectricStations.get(0).getLongitude());
-		        				double initialDistanceEle = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeEle, location.getLongitude(), initialMarkerLongitudeEle);
-								lowerDistanceIndex = 0;
-								lowerDistanceValue = initialDistanceEle;
-			        			
-			        			double tempDistanceEle;
-			        			double tempMarkerLatitudeEle;
-			        			double tempMarkerLongitudeEle;
-			        			
-			        			for (int i = 1; i < this.listElectricStations.size(); i++) {
-			        				tempMarkerLatitudeEle  = Double.parseDouble(this.listElectricStations.get(i).getLatitude());
-			        				tempMarkerLongitudeEle = Double.parseDouble(this.listElectricStations.get(i).getLongitude());
+							//Agisco in base all'ultimo filtro che è stato selezionato per ultimo
+							switch (this.currentFilter) {
+								
+							
+								//Colonnine elettriche
+			        			case 1:
 			        				
-			        				tempDistanceEle = distanceBetween.distance(location.getLatitude(), tempMarkerLatitudeEle, location.getLongitude(), tempMarkerLongitudeEle);
-			        				distancesArrey.add(new Double(tempDistanceEle));
-			        			}
-			        			
-			        			for (int i = 0; i < distancesArrey.size(); i++) {
-			        				if (distancesArrey.get(i).doubleValue() < lowerDistanceValue)
-			        					lowerDistanceValue = distancesArrey.get(i).doubleValue();
-			        					lowerDistanceIndex = i;
-			        			}
-			        			
-			        			//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
-			        			nearestMarkerLatitude  = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLatitude());
-			        			nearestMarkerLongitude = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLongitude());
-			        			//String nearestMarkerFormattedAddressEle = this.listElectricStations.get(lowerDistanceIndex).getFormattedAddress();
-			        			//Toast.makeText(getApplicationContext(), nearestMarkerFormattedAddressEle, Toast.LENGTH_LONG).show();
-			        		
-			        		//GPL
-			        		case 2:
-			        			//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
-			        			double initialMarkerLatitudeGPL  = Double.parseDouble(this.listGPL.get(0).getLatitude());
-		        				double initialMarkerLongitudeGPL = Double.parseDouble(this.listGPL.get(0).getLongitude());
-		        				double initialDistanceGPL = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeGPL, location.getLongitude(), initialMarkerLongitudeGPL);
-								lowerDistanceIndex = 0;
-								lowerDistanceValue = initialDistanceGPL;
-			        			
-			        			double tempDistanceGPL;
-			        			double tempMarkerLatitudeGPL;
-			        			double tempMarkerLongitudeGPL;
-			        			
-			        			for (int i = 1; i < this.listGPL.size(); i++) {
-			        				tempMarkerLatitudeGPL  = Double.parseDouble(this.listGPL.get(i).getLatitude());
-			        				tempMarkerLongitudeGPL = Double.parseDouble(this.listGPL.get(i).getLongitude());
+			        				this.nearestElectricService = new NearestElectricAsyncTask(location);
+			        				this.nearestElectricService.execute();
 			        				
-			        				tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerLatitudeGPL, location.getLongitude(), tempMarkerLongitudeGPL);
-			        				distancesArrey.add(new Double(tempDistanceGPL));
-			        			}
+			        				/*
+			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
+			        				double initialMarkerLatitudeEle  = Double.parseDouble(this.listElectricStations.get(0).getLatitude());
+		        					double initialMarkerLongitudeEle = Double.parseDouble(this.listElectricStations.get(0).getLongitude());
+		        					double initialDistanceEle = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeEle, location.getLongitude(), initialMarkerLongitudeEle);
+									lowerDistanceIndex = 0;
+									lowerDistanceValue = initialDistanceEle;
 			        			
-			        			for (int i = 0; i < distancesArrey.size(); i++) {
-			        				if (distancesArrey.get(i).doubleValue() < lowerDistanceValue)
-			        					lowerDistanceValue = distancesArrey.get(i).doubleValue();
-			        					lowerDistanceIndex = i;
-			        			}
+			        				double tempDistanceEle;
+			        				double tempMarkerLatitudeEle;
+			        				double tempMarkerLongitudeEle;
 			        			
-			        			//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
-			        			nearestMarkerLatitude  = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLatitude());
-			        			nearestMarkerLongitude = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLongitude());
-			        			//String nearestMarkerAddressGPL = this.listGPL.get(lowerDistanceIndex).getAddress();
-			        			//Toast.makeText(getApplicationContext(), nearestMarkerAddressGPL, Toast.LENGTH_LONG).show();
-			        		
-			        		//Methane
-			        		case 3:
-			        			//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
-			        			double initialMarkerLatitudeMethane  = Double.parseDouble(this.listMethane.get(0).getLatitude());
-		        				double initialMarkerLongitudeMethane = Double.parseDouble(this.listMethane.get(0).getLongitude());
-		        				double initialDistanceMethane = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeMethane, location.getLongitude(), initialMarkerLongitudeMethane);
-								lowerDistanceIndex = 0;
-								lowerDistanceValue = initialDistanceMethane;
-			        			
-			        			double tempDistanceMethane;
-			        			double tempMarkerLatitudeMeth;
-			        			double tempMerkerLongitudeMath;
-			        			
-			        			for (int i = 1; i < this.listMethane.size(); i++) {
-			        				tempMarkerLatitudeMeth  = Double.parseDouble(this.listMethane.get(i).getLatitude());
-			        				tempMerkerLongitudeMath = Double.parseDouble(this.listMethane.get(i).getLongitude());
+			        				for (int i = 1; i < this.listElectricStations.size(); i++) {
+			        					tempMarkerLatitudeEle  = Double.parseDouble(this.listElectricStations.get(i).getLatitude());
+			        					tempMarkerLongitudeEle = Double.parseDouble(this.listElectricStations.get(i).getLongitude());
 			        				
-			        				tempDistanceMethane = distanceBetween.distance(location.getLatitude(), tempMarkerLatitudeMeth, location.getLongitude(), tempMerkerLongitudeMath);
-			        				distancesArrey.add(new Double(tempDistanceMethane));
-			        			}
+			        					tempDistanceEle = distanceBetween.distance(location.getLatitude(), tempMarkerLatitudeEle, location.getLongitude(), tempMarkerLongitudeEle);
+			        					distancesArrey.add(new Double(tempDistanceEle));
+			        				}
 			        			
-			        			for (int i = 0; i < distancesArrey.size(); i++) {
-			        				if (distancesArrey.get(i).doubleValue() < lowerDistanceValue)
-			        					lowerDistanceValue = distancesArrey.get(i).doubleValue();
-			        					lowerDistanceIndex = i;
-			        			}
+			        				for (int i = 0; i < distancesArrey.size(); i++) {
+			        					if (distancesArrey.get(i).doubleValue() < lowerDistanceValue) {
+			        						lowerDistanceValue = distancesArrey.get(i).doubleValue();
+			        						lowerDistanceIndex = i;
+			        					}
+			        				}
 			        			
-			        			//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
-			        			nearestMarkerLatitude  = Double.parseDouble(this.listMethane.get(lowerDistanceIndex).getLatitude());
-			        			nearestMarkerLongitude = Double.parseDouble(this.listMethane.get(lowerDistanceIndex).getLongitude());
-			        			//String nearestMarkerAddressMeth = this.listMethane.get(lowerDistanceIndex).getAddress();
-			        			//Toast.makeText(getApplicationContext(), nearestMarkerAddressMeth, Toast.LENGTH_LONG).show();
-						}// Fine switch
+			        				//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
+			        				nearestMarkerLatitude  = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLatitude());
+			        				nearestMarkerLongitude = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLongitude());
+			        				//String nearestMarkerFormattedAddressEle = this.listElectricStations.get(lowerDistanceIndex).getFormattedAddress();
+			        				//Toast.makeText(getApplicationContext(), nearestMarkerFormattedAddressEle, Toast.LENGTH_LONG).show();
+			        				*/
+			        			
+			        				
+			        			//GPL
+			        			case 2:
+			        				
+			        				this.nearestGPLService = new NearestGPLAsyncTask(location);
+			        				this.nearestGPLService.execute();
+			        				
+			        				/*
+			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
+			        				double initialMarkerLatitudeGPL  = Double.parseDouble(this.listGPL.get(0).getLatitude());
+		        					double initialMarkerLongitudeGPL = Double.parseDouble(this.listGPL.get(0).getLongitude());
+		        					double initialDistanceGPL = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeGPL, location.getLongitude(), initialMarkerLongitudeGPL);
+									lowerDistanceIndex = 0;
+									lowerDistanceValue = initialDistanceGPL;
+			        			
+			        				double tempDistanceGPL;
+			        				double tempMarkerLatitudeGPL;
+			        				double tempMarkerLongitudeGPL;
+			        			
+			        				for (int i = 1; i < this.listGPL.size(); i++) {
+			        					tempMarkerLatitudeGPL  = Double.parseDouble(this.listGPL.get(i).getLatitude());
+			        					tempMarkerLongitudeGPL = Double.parseDouble(this.listGPL.get(i).getLongitude());
+			        				
+			        					tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerLatitudeGPL, location.getLongitude(), tempMarkerLongitudeGPL);
+			        					distancesArrey.add(new Double(tempDistanceGPL));
+			        				}
+			        			
+			        				for (int i = 0; i < distancesArrey.size(); i++) {
+			        					if (distancesArrey.get(i).doubleValue() < lowerDistanceValue) {
+			        						lowerDistanceValue = distancesArrey.get(i).doubleValue();
+			        						lowerDistanceIndex = i;
+			        					}
+			        				}
+			        				
+			        			
+			        				//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
+			        				nearestMarkerLatitude  = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLatitude());
+			        				nearestMarkerLongitude = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLongitude());
+			        				//String nearestMarkerAddressGPL = this.listGPL.get(lowerDistanceIndex).getAddress();
+			        				//Toast.makeText(getApplicationContext(), nearestMarkerAddressGPL, Toast.LENGTH_LONG).show();
+			        				*/
+			        			
+			        			
+			        			//Methane
+			        			case 3:
+			        				
+			        				this.nearestMethaneService = new NearestMethaneAsyncTask(location);
+			        				this.nearestMethaneService.execute();
+			        				
+			        				/*
+			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
+			        				double initialMarkerLatitudeMethane  = Double.parseDouble(this.listMethane.get(0).getLatitude());
+		        					double initialMarkerLongitudeMethane = Double.parseDouble(this.listMethane.get(0).getLongitude());
+		        					double initialDistanceMethane = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeMethane, location.getLongitude(), initialMarkerLongitudeMethane);
+									lowerDistanceIndex = 0;
+									lowerDistanceValue = initialDistanceMethane;
+			        			
+			        				double tempDistanceMethane;
+			        				double tempMarkerLatitudeMeth;
+			        				double tempMerkerLongitudeMath;
+			        			
+			        				for (int i = 1; i < this.listMethane.size(); i++) {
+			        					tempMarkerLatitudeMeth  = Double.parseDouble(this.listMethane.get(i).getLatitude());
+			        					tempMerkerLongitudeMath = Double.parseDouble(this.listMethane.get(i).getLongitude());
+			        				
+			        					tempDistanceMethane = distanceBetween.distance(location.getLatitude(), tempMarkerLatitudeMeth, location.getLongitude(), tempMerkerLongitudeMath);
+			        					distancesArrey.add(new Double(tempDistanceMethane));
+			        				}
+			        			
+			        				for (int i = 0; i < distancesArrey.size(); i++) {
+			        					if (distancesArrey.get(i).doubleValue() < lowerDistanceValue) {
+			        						lowerDistanceValue = distancesArrey.get(i).doubleValue();
+			        						lowerDistanceIndex = i;
+			        					}
+			        				}
+			        			
+			        				//Acquisisco latitudine e longitudine del marker più vicino alla posizione attuale
+			        				nearestMarkerLatitude  = Double.parseDouble(this.listMethane.get(lowerDistanceIndex).getLatitude());
+			        				nearestMarkerLongitude = Double.parseDouble(this.listMethane.get(lowerDistanceIndex).getLongitude());
+			        				//String nearestMarkerAddressMeth = this.listMethane.get(lowerDistanceIndex).getAddress();
+			        				//Toast.makeText(getApplicationContext(), nearestMarkerAddressMeth, Toast.LENGTH_LONG).show();
+			        				*/
+							}// Fine switch
 						
-						//Svuoto l'ArrayList
-						distancesArrey.clear();
+							//Svuoto l'ArrayList
+							//distancesArrey.clear();
 						
-						//Avvio il servizio di navigazione
-						Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
-						startActivity(intent);
-						
+							//Avvio il servizio di navigazione
+							//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
+							//startActivity(intent);
+						} else
+							Toast.makeText(getApplicationContext(), "Segnale GPS instabile.", Toast.LENGTH_LONG).show();
 					} else 
-						Toast.makeText(getApplicationContext(), "Internet connection error.", Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "Errore di connessione ad Internet.", Toast.LENGTH_LONG).show();
 				} else
 					Toast.makeText(getApplicationContext(), "È necessario selezionare un filtro.", Toast.LENGTH_SHORT).show();
 				
 		}
 		return super.onOptionsItemSelected(item);
-	}
+	}//Fine onOptionItemSelected
+	
+	
 	
 	
 	public class MethaneAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
@@ -464,6 +500,8 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	
+	
+	
 	public class GPLAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 		private ProgressDialog dialog;
@@ -482,7 +520,7 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		protected ArrayList<Location> doInBackground(Void... params) {
-			jsonRequest = new JSONRequest();	
+			jsonRequest = new JSONRequest();
 				
 			String json = jsonRequest.getTextFromUrl(gplURLRequest);
 
@@ -507,8 +545,10 @@ public class MainActivity extends ActionBarActivity {
 			 return listGPL;
 		}
 	}
-		
-		
+	
+	
+	
+	
 	public class ElectricAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 		private ProgressDialog dialog;
@@ -554,6 +594,243 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 	
+	
+	
+	
+	public class NearestElectricAsyncTask extends AsyncTask<Void, Void, Location> {
+		private ProgressDialog progressDialog;
+		private android.location.Location location;
+		
+		public NearestElectricAsyncTask(android.location.Location location) {
+			this.location = location;
+		}
+		
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(MainActivity.this);
+		    progressDialog.setCancelable(false);
+		    progressDialog.setTitle("Caricamento");
+		    progressDialog.setMessage("Avvio del servizio in corso...");
+		    progressDialog.show();
+		}
+	
+		protected Location doInBackground(Void... params) {
+			jsonRequest = new JSONRequest();
+			int[] distances = new int[listElectricStations.size()];
+			int nearestMarkerIndex = 0;
+			
+			//Effettuo il calcolo della distanza tra la posizione attuale e tutte le altre locazioni della lista
+			for (int i = 0; i < listElectricStations.size(); i++) {
+				String destinationLatitude  = listElectricStations.get(i).getLatitude();
+				String destinationLongitude = listElectricStations.get(i).getLongitude();
+			
+				String URLRequest = nearestServiceURL + "origins=" + location.getLatitude() + "," + location.getLongitude() 
+												  	  + "&destinations=" + destinationLatitude + "," + destinationLongitude
+												  	  + "&sensor=false";
+			
+				String jsonResult = jsonRequest.getTextFromUrl(URLRequest);
+				System.out.println(jsonResult);
+			
+				//Parsing JSON della richiesta sul primo elemento della lista.
+				try {
+					JSONObject result = new JSONObject(jsonResult);
+					JSONArray rows = result.getJSONArray("rows");
+					JSONObject firstRow = rows.getJSONObject(0);
+					JSONArray elements = firstRow.getJSONArray("elements");
+					JSONObject firstElement = elements.getJSONObject(0);
+				
+					//Acquisizione delle informazioni sulla distanza
+					JSONObject distance = firstElement.getJSONObject("distance");
+					@SuppressWarnings("unused")
+					String distanceText = distance.getString("text");		//1716 Km
+					int distanceValue = distance.getInt("value"); 			//1715502
+					
+					//Inserisco la distanza nell'array
+					distances[i] = distanceValue;
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}//Fine for
+			
+			
+			//Prendo la prima distanza dell'array per utilizzare come confronto
+			int distance = distances[0];
+			for (int j = 1; j < distances.length; j++) {
+				if (distances[j] < distance) {
+					distance = distances[j];
+					nearestMarkerIndex = j;
+				}
+			}
+			
+			
+			return listElectricStations.get(nearestMarkerIndex);
+		}//Fine doInBackGround()
+		
+		protected void onPostExecute(Location location) {
+			this.progressDialog.dismiss();
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ location.getLatitude() + ","+ location.getLongitude()));
+			startActivity(intent);
+		}
+		
+	}//Fine NearestElectricAsyncTask
+	
+	
+	
+	
+	public class NearestGPLAsyncTask extends AsyncTask<Void, Void, Location> {
+		private ProgressDialog progressDialog;
+		private android.location.Location location;
+		
+		public NearestGPLAsyncTask(android.location.Location location) {
+			this.location = location;
+		}
+		
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(MainActivity.this);
+		    progressDialog.setCancelable(false);
+		    progressDialog.setTitle("Caricamento");
+		    progressDialog.setMessage("Avvio del servizio in corso...");
+		    progressDialog.show();
+		}
+	
+		protected Location doInBackground(Void... params) {
+			jsonRequest = new JSONRequest();
+			int[] distances = new int[listGPL.size()];
+			int nearestMarkerIndex = 0;
+			
+			//Effettuo il calcolo della distanza tra la posizione attuale e tutte le altre locazioni della lista
+			for (int i = 0; i < listGPL.size(); i++) {
+				String destinationLatitude  = listGPL.get(i).getLatitude();
+				String destinationLongitude = listGPL.get(i).getLongitude();
+			
+				String URLRequest = nearestServiceURL + "origins=" + location.getLatitude() + "," + location.getLongitude() 
+												  	  + "&destinations=" + destinationLatitude + "," + destinationLongitude
+												  	  + "&sensor=false";
+			
+				String jsonResult = jsonRequest.getTextFromUrl(URLRequest);
+			
+				//Parsing JSON della richiesta sul primo elemento della lista.
+				try {
+					JSONObject result = new JSONObject(jsonResult);
+					JSONArray rows = result.getJSONArray("rows");
+					JSONObject firstRow = rows.getJSONObject(0);
+					JSONArray elements = firstRow.getJSONArray("elements");
+					JSONObject firstElement = elements.getJSONObject(0);
+				
+					//Acquisizione delle informazioni sulla distanza
+					JSONObject distance = firstElement.getJSONObject("distance");
+					@SuppressWarnings("unused")
+					String distanceText = distance.getString("text");		//1716 Km
+					int distanceValue = distance.getInt("value"); 			//1715502
+					
+					//Inserisco la distanza nell'array
+					distances[i] = distanceValue;
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}//Fine for
+			
+			
+			//Prendo la prima distanza dell'array per utilizzare come confronto
+			int distance = distances[0];
+			for (int j = 1; j < distances.length; j++) {
+				if (distances[j] < distance) {
+					distance = distances[j];
+					nearestMarkerIndex = j;
+				}
+			}
+			
+			
+			return listGPL.get(nearestMarkerIndex);
+		}//Fine doInBackGround()
+		
+		protected void onPostExecute(Location location) {
+			this.progressDialog.dismiss();
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ location.getLatitude() + ","+ location.getLongitude()));
+			startActivity(intent);
+		}
+		
+	}//Fine NearestGPLAsyncTask
+	
+	
+	
+	public class NearestMethaneAsyncTask extends AsyncTask<Void, Void, Location> {
+		private ProgressDialog progressDialog;
+		private android.location.Location location;
+		
+		public NearestMethaneAsyncTask(android.location.Location location) {
+			this.location = location;
+		}
+		
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(MainActivity.this);
+		    progressDialog.setCancelable(false);
+		    progressDialog.setTitle("Caricamento");
+		    progressDialog.setMessage("Avvio del servizio in corso...");
+		    progressDialog.show();
+		}
+	
+		protected Location doInBackground(Void... params) {
+			jsonRequest = new JSONRequest();
+			int[] distances = new int[listMethane.size()];
+			int nearestMarkerIndex = 0;
+			
+			//Effettuo il calcolo della distanza tra la posizione attuale e tutte le altre locazioni della lista
+			for (int i = 0; i < listMethane.size(); i++) {
+				String destinationLatitude  = listMethane.get(i).getLatitude();
+				String destinationLongitude = listMethane.get(i).getLongitude();
+			
+				String URLRequest = nearestServiceURL + "origins=" + location.getLatitude() + "," + location.getLongitude() 
+												  	  + "&destinations=" + destinationLatitude + "," + destinationLongitude
+												  	  + "&sensor=false";
+			
+				String jsonResult = jsonRequest.getTextFromUrl(URLRequest);
+			
+				//Parsing JSON della richiesta sul primo elemento della lista.
+				try {
+					JSONObject result = new JSONObject(jsonResult);
+					JSONArray rows = result.getJSONArray("rows");
+					JSONObject firstRow = rows.getJSONObject(0);
+					JSONArray elements = firstRow.getJSONArray("elements");
+					JSONObject firstElement = elements.getJSONObject(0);
+				
+					//Acquisizione delle informazioni sulla distanza
+					JSONObject distance = firstElement.getJSONObject("distance");
+					@SuppressWarnings("unused")
+					String distanceText = distance.getString("text");		//1716 Km
+					int distanceValue = distance.getInt("value"); 			//1715502
+					
+					//Inserisco la distanza nell'array
+					distances[i] = distanceValue;
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}//Fine for
+			
+			
+			//Prendo la prima distanza dell'array per utilizzare come confronto
+			int distance = distances[0];
+			for (int j = 1; j < distances.length; j++) {
+				if (distances[j] < distance) {
+					distance = distances[j];
+					nearestMarkerIndex = j;
+				}
+			}
+			
+			
+			return listMethane.get(nearestMarkerIndex);
+		}//Fine doInBackGround()
+		
+		protected void onPostExecute(Location location) {
+			this.progressDialog.dismiss();
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ location.getLatitude() + ","+ location.getLongitude()));
+			startActivity(intent);
+		}
+		
+	}//Fine NearestMethaneAsyncTask
+	
+	
+	
+	
 	public class PutMethaneMarkersAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 		private ProgressDialog dialog;
@@ -584,7 +861,10 @@ public class MainActivity extends ActionBarActivity {
 			return listMethane;
 		}
 	}		
-		
+	
+	
+	
+	
 	public class PutGPLMarkersAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 		private ProgressDialog dialog;
@@ -618,7 +898,10 @@ public class MainActivity extends ActionBarActivity {
 			return listGPL;
 		}
 	}
-		
+	
+	
+	
+	
 	public class PutElectricMarkersAsyncTask extends AsyncTask<Void, Void, ArrayList<Location>> {
 
 		private ProgressDialog dialog;
@@ -650,6 +933,9 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 
+	
+	
+	
 	public void marker(ArrayList<Location> lista) {
 		for(int i = 0; i < lista.size(); i++) {
 			double latitudine = Double.parseDouble(lista.get(i).getLatitude());
@@ -738,6 +1024,8 @@ public class MainActivity extends ActionBarActivity {
 			});
 		}
 	}
+	
+	
 	
 	
 	public void markerElectricStation(ArrayList<Location> electricList) {
@@ -838,7 +1126,7 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 		
-		
+	
 	public void navigate() {
 		currentDialog.dismiss();
 		

@@ -18,6 +18,7 @@ import android.widget.SimpleCursorAdapter;
 
 
 
+@SuppressWarnings("unused")
 public class FavouriteList extends ListActivity{
 	
 	public static final String ROW_ID = "row_id"; // Intent extra key
@@ -25,7 +26,8 @@ public class FavouriteList extends ListActivity{
 	private CursorAdapter contactAdapter; // cursorAdapter per l'estrazione dei record
 	
 	 // metodo chiamato quando viene creata l'activity
-	   @Override
+	   @SuppressWarnings("deprecation")
+	@Override
 	   public void onCreate(Bundle savedInstanceState) 
 	   {
 	      super.onCreate(savedInstanceState);
@@ -54,7 +56,8 @@ public class FavouriteList extends ListActivity{
 
 	  
 	   //metodo che interrompe l'activity rilasciando le risorse
-	   @Override
+	   @SuppressWarnings("deprecation")
+	@Override
 	   protected void onStop() 
 	   {
 	      Cursor cursor = contactAdapter.getCursor(); // prendo il Cursor corrente
