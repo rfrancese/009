@@ -348,6 +348,12 @@ public class MainActivity extends ActionBarActivity {
 			        				nearestMarkerLongitude = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLongitude());
 			        				//String nearestMarkerFormattedAddressEle = this.listElectricStations.get(lowerDistanceIndex).getFormattedAddress();
 			        				//Toast.makeText(getApplicationContext(), nearestMarkerFormattedAddressEle, Toast.LENGTH_LONG).show();
+			        				//Svuoto l'ArrayList
+									distancesArrey.clear();
+								
+									//Avvio il servizio di navigazione
+									Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
+									startActivity(intent);
 			        				return true;
 			        				//*/
 			        			
@@ -391,6 +397,12 @@ public class MainActivity extends ActionBarActivity {
 			        				nearestMarkerLongitude = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLongitude());
 			        				//String nearestMarkerAddressGPL = this.listGPL.get(lowerDistanceIndex).getAddress();
 			        				//Toast.makeText(getApplicationContext(), nearestMarkerAddressGPL, Toast.LENGTH_LONG).show();
+			        				//Svuoto l'ArrayList
+									distancesArrey.clear();
+								
+									//Avvio il servizio di navigazione
+									Intent intentGPL = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
+									startActivity(intentGPL);
 			        				return true;
 			        				//*/
 			        			
@@ -433,16 +445,17 @@ public class MainActivity extends ActionBarActivity {
 			        				nearestMarkerLongitude = Double.parseDouble(this.listMethane.get(lowerDistanceIndex).getLongitude());
 			        				//String nearestMarkerAddressMeth = this.listMethane.get(lowerDistanceIndex).getAddress();
 			        				//Toast.makeText(getApplicationContext(), nearestMarkerAddressMeth, Toast.LENGTH_LONG).show();
+			        				//Svuoto l'ArrayList
+									distancesArrey.clear();
+								
+									//Avvio il servizio di navigazione
+									Intent intentMethane = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
+									startActivity(intentMethane);
 			        				return true;
 			        				//*/
 							}// Fine switch
 						
-							//Svuoto l'ArrayList
-							distancesArrey.clear();
-						
-							//Avvio il servizio di navigazione
-							Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
-							startActivity(intent);
+							
 						} else
 							Toast.makeText(getApplicationContext(), "Segnale GPS instabile.", Toast.LENGTH_LONG).show();
 					} else 
