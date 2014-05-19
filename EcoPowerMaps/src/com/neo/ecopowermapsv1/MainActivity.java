@@ -288,24 +288,24 @@ public class MainActivity extends ActionBarActivity {
 				
 					if (internetPresent) {
 						//Indice dell'elemento che rappresenta la distanza lineare più breve
-						//int lowerDistanceIndex;
+						int lowerDistanceIndex;
 						
 						//Conterrà la distanza più breve
-						//double lowerDistanceValue;	
+						double lowerDistanceValue;	
 						
 						//ArrayList delle distanze calcolate
-						//ArrayList<Double> distancesArrey = new ArrayList<Double>(); 
+						ArrayList<Double> distancesArrey = new ArrayList<Double>(); 
 						
 						//Info sul marker più vicino
-						//double nearestMarkerLatitude = 0;
-						//double nearestMarkerLongitude = 0;
+						double nearestMarkerLatitude = 0;
+						double nearestMarkerLongitude = 0;
 						
 						//Acquisisco le informazioni sulla posizione attuale 
 						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 						Criteria criteria = new Criteria();
 						android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
 						if (location != null) {
-							//ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
+							ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
 						
 							//Agisco in base all'ultimo filtro che è stato selezionato per ultimo
 							switch (this.currentFilter) {
@@ -314,10 +314,10 @@ public class MainActivity extends ActionBarActivity {
 								//Colonnine elettriche
 			        			case 1:
 			        				
-			        				this.nearestElectricService = new NearestElectricAsyncTask(location);
-			        				this.nearestElectricService.execute();
+			        				//this.nearestElectricService = new NearestElectricAsyncTask(location);
+			        				//this.nearestElectricService.execute();
+			        				//return true;
 			        				
-			        				/*
 			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
 			        				double initialMarkerLatitudeEle  = Double.parseDouble(this.listElectricStations.get(0).getLatitude());
 		        					double initialMarkerLongitudeEle = Double.parseDouble(this.listElectricStations.get(0).getLongitude());
@@ -349,16 +349,17 @@ public class MainActivity extends ActionBarActivity {
 			        				nearestMarkerLongitude = Double.parseDouble(this.listElectricStations.get(lowerDistanceIndex).getLongitude());
 			        				//String nearestMarkerFormattedAddressEle = this.listElectricStations.get(lowerDistanceIndex).getFormattedAddress();
 			        				//Toast.makeText(getApplicationContext(), nearestMarkerFormattedAddressEle, Toast.LENGTH_LONG).show();
-			        				*/
+			        				return true;
+			        				//*/
 			        			
 			        				
 			        			//GPL
 			        			case 2:
 			        				
-			        				this.nearestGPLService = new NearestGPLAsyncTask(location);
-			        				this.nearestGPLService.execute();
-			        				
-			        				/*
+			        				//this.nearestGPLService = new NearestGPLAsyncTask(location);
+			        				//this.nearestGPLService.execute();
+			        				//return true;
+			        				///*
 			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
 			        				double initialMarkerLatitudeGPL  = Double.parseDouble(this.listGPL.get(0).getLatitude());
 		        					double initialMarkerLongitudeGPL = Double.parseDouble(this.listGPL.get(0).getLongitude());
@@ -391,16 +392,17 @@ public class MainActivity extends ActionBarActivity {
 			        				nearestMarkerLongitude = Double.parseDouble(this.listGPL.get(lowerDistanceIndex).getLongitude());
 			        				//String nearestMarkerAddressGPL = this.listGPL.get(lowerDistanceIndex).getAddress();
 			        				//Toast.makeText(getApplicationContext(), nearestMarkerAddressGPL, Toast.LENGTH_LONG).show();
-			        				*/
+			        				return true;
+			        				//*/
 			        			
 			        			
 			        			//Methane
 			        			case 3:
 			        				
-			        				this.nearestMethaneService = new NearestMethaneAsyncTask(location);
-			        				this.nearestMethaneService.execute();
-			        				
-			        				/*
+			        				//this.nearestMethaneService = new NearestMethaneAsyncTask(location);
+			        				//this.nearestMethaneService.execute();
+			        				//return true;
+			        				///*
 			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
 			        				double initialMarkerLatitudeMethane  = Double.parseDouble(this.listMethane.get(0).getLatitude());
 		        					double initialMarkerLongitudeMethane = Double.parseDouble(this.listMethane.get(0).getLongitude());
@@ -432,15 +434,16 @@ public class MainActivity extends ActionBarActivity {
 			        				nearestMarkerLongitude = Double.parseDouble(this.listMethane.get(lowerDistanceIndex).getLongitude());
 			        				//String nearestMarkerAddressMeth = this.listMethane.get(lowerDistanceIndex).getAddress();
 			        				//Toast.makeText(getApplicationContext(), nearestMarkerAddressMeth, Toast.LENGTH_LONG).show();
-			        				*/
+			        				return true;
+			        				//*/
 							}// Fine switch
 						
 							//Svuoto l'ArrayList
-							//distancesArrey.clear();
+							distancesArrey.clear();
 						
 							//Avvio il servizio di navigazione
-							//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
-							//startActivity(intent);
+							Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ nearestMarkerLatitude + ","+ nearestMarkerLongitude));
+							startActivity(intent);
 						} else
 							Toast.makeText(getApplicationContext(), "Segnale GPS instabile.", Toast.LENGTH_LONG).show();
 					} else 
@@ -620,8 +623,8 @@ public class MainActivity extends ActionBarActivity {
 			
 			//Effettuo il calcolo della distanza tra la posizione attuale e tutte le altre locazioni della lista
 			for (int i = 0; i < listElectricStations.size(); i++) {
-				String destinationLatitude  = listElectricStations.get(i).getLatitude();
-				String destinationLongitude = listElectricStations.get(i).getLongitude();
+				String destinationLatitude  = listElectricStations.get(i).getLatitude().trim();
+				String destinationLongitude = listElectricStations.get(i).getLongitude().trim();
 			
 				String URLRequest = nearestServiceURL + "origins=" + location.getLatitude() + "," + location.getLongitude() 
 												  	  + "&destinations=" + destinationLatitude + "," + destinationLongitude
@@ -699,8 +702,8 @@ public class MainActivity extends ActionBarActivity {
 			
 			//Effettuo il calcolo della distanza tra la posizione attuale e tutte le altre locazioni della lista
 			for (int i = 0; i < listGPL.size(); i++) {
-				String destinationLatitude  = listGPL.get(i).getLatitude();
-				String destinationLongitude = listGPL.get(i).getLongitude();
+				String destinationLatitude  = listGPL.get(i).getLatitude().trim();
+				String destinationLongitude = listGPL.get(i).getLongitude().trim();
 			
 				String URLRequest = nearestServiceURL + "origins=" + location.getLatitude() + "," + location.getLongitude() 
 												  	  + "&destinations=" + destinationLatitude + "," + destinationLongitude
@@ -776,8 +779,8 @@ public class MainActivity extends ActionBarActivity {
 			
 			//Effettuo il calcolo della distanza tra la posizione attuale e tutte le altre locazioni della lista
 			for (int i = 0; i < listMethane.size(); i++) {
-				String destinationLatitude  = listMethane.get(i).getLatitude();
-				String destinationLongitude = listMethane.get(i).getLongitude();
+				String destinationLatitude  = listMethane.get(i).getLatitude().trim();
+				String destinationLongitude = listMethane.get(i).getLongitude().trim();
 			
 				String URLRequest = nearestServiceURL + "origins=" + location.getLatitude() + "," + location.getLongitude() 
 												  	  + "&destinations=" + destinationLatitude + "," + destinationLongitude
