@@ -102,7 +102,6 @@ public class MainActivity extends ActionBarActivity {
 		
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
-        
         android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
         
         if (location != null) {
@@ -317,14 +316,14 @@ public class MainActivity extends ActionBarActivity {
 			        				//this.nearestElectricService = new NearestElectricAsyncTask(location);
 			        				//this.nearestElectricService.execute();
 			        				//return true;
-			        				
+			        				///*
 			        				//Calcolo la prima distanza tra la posizione attuale e il primo marker presente nell'array, per confronti successivi
 			        				double initialMarkerLatitudeEle  = Double.parseDouble(this.listElectricStations.get(0).getLatitude());
 		        					double initialMarkerLongitudeEle = Double.parseDouble(this.listElectricStations.get(0).getLongitude());
 		        					double initialDistanceEle = distanceBetween.distance(location.getLatitude(), initialMarkerLatitudeEle, location.getLongitude(), initialMarkerLongitudeEle);
 									lowerDistanceIndex = 0;
 									lowerDistanceValue = initialDistanceEle;
-			        			
+			        	
 			        				double tempDistanceEle;
 			        				double tempMarkerLatitudeEle;
 			        				double tempMarkerLongitudeEle;
@@ -340,7 +339,7 @@ public class MainActivity extends ActionBarActivity {
 			        				for (int i = 0; i < distancesArrey.size(); i++) {
 			        					if (distancesArrey.get(i).doubleValue() < lowerDistanceValue) {
 			        						lowerDistanceValue = distancesArrey.get(i).doubleValue();
-			        						lowerDistanceIndex = i;
+			        						lowerDistanceIndex = ++i;
 			        					}
 			        				}
 			        			
@@ -382,7 +381,7 @@ public class MainActivity extends ActionBarActivity {
 			        				for (int i = 0; i < distancesArrey.size(); i++) {
 			        					if (distancesArrey.get(i).doubleValue() < lowerDistanceValue) {
 			        						lowerDistanceValue = distancesArrey.get(i).doubleValue();
-			        						lowerDistanceIndex = i;
+			        						lowerDistanceIndex = ++i;
 			        					}
 			        				}
 			        				
@@ -425,7 +424,7 @@ public class MainActivity extends ActionBarActivity {
 			        				for (int i = 0; i < distancesArrey.size(); i++) {
 			        					if (distancesArrey.get(i).doubleValue() < lowerDistanceValue) {
 			        						lowerDistanceValue = distancesArrey.get(i).doubleValue();
-			        						lowerDistanceIndex = i;
+			        						lowerDistanceIndex = ++i;
 			        					}
 			        				}
 			        			
