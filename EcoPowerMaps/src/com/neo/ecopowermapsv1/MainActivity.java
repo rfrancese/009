@@ -558,15 +558,23 @@ public class MainActivity extends ActionBarActivity {
 										
 											//Cerco il prezzo minore
 											for(int i = 1; i < locationArray.size(); i++) {
+												
+												if(isNumeric(locationArray.get(i).getPrice())){
+												
 												if(Double.parseDouble(locationArray.get(i).getPrice()) < leastExpensiveValue)
 													leastExpensiveValue = Double.parseDouble(locationArray.get(i).getPrice());
 											}
+											
+											}//fine if isNumeric
 										
 										    //Cerco gli oggetti Location con lo stesso prezzo
 											for(int i = 0; i < locationArray.size(); i++) {
-										    	if(Double.parseDouble(locationArray.get(i).getPrice()) == leastExpensiveValue)
+												if(isNumeric(locationArray.get(i).getPrice())){
+													
+												if(Double.parseDouble(locationArray.get(i).getPrice()) == leastExpensiveValue)
 										    		samePriceArray.add(locationArray.get(i));
-										    }
+												}
+											}//fine if numeric
 										
 											//Cerco l'oggetto Location più vicino tra quelli con il prezzo minore
 											Double nearestDistance = distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePriceArray.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePriceArray.get(0).getLongitude()));
@@ -575,6 +583,8 @@ public class MainActivity extends ActionBarActivity {
 												double tempMarkerGPL = Double.parseDouble(samePriceArray.get(i).getLatitude());
 												double tempMarkerLongGPL = Double.parseDouble(samePriceArray.get(i).getLongitude());
 										    
+												System.out.println(samePriceArray.get(i).getPrice() + "//"+ Double.parseDouble(samePriceArray.get(i).getPrice()));
+												
 												double tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerGPL, location.getLongitude(), tempMarkerLongGPL);
 										
 												if(tempDistanceGPL <= nearestDistance) {
@@ -1341,5 +1351,19 @@ public class MainActivity extends ActionBarActivity {
 			//	marker(this.actual);
 			//else
 			//	markerElectricStation(this.actual);
+	}
+	
+	
+	public static boolean isNumeric(String str)  
+	{  
+	  try  
+	  {  
+	    double d = Double.parseDouble(str);  
+	  }  
+	  catch(NumberFormatException nfe)  
+	  {  
+	    return false;  
+	  }  
+	  return true;  
 	}
 }
