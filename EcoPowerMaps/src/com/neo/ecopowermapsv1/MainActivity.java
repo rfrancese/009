@@ -482,16 +482,15 @@ public class MainActivity extends ActionBarActivity {
 						//Acquisisco le informazioni sulla posizione attuale 
 						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 						Criteria criteria = new Criteria();
-						android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+						final android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
 						if (location != null) {
 						
-							final Dialog seek = new Dialog(this);
+						    final Dialog seek = new Dialog(this);
 							seek.setContentView(R.layout.seekbar);
-							seek.show();
-							
+							seek.setTitle("Distanza Massima");
 							this.seekbar = (SeekBar) seek.findViewById(R.id.seekBar1);
 							this.seekButton = (Button) seek.findViewById(R.id.button1);
-							this.seekText = (TextView) seek.findViewById(R.id.textView2);
+							this.seekText = (TextView) seek.findViewById(R.id.textView1);
 							this.seekText.setText("20 Km");
 							
 							this.seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
@@ -521,13 +520,83 @@ public class MainActivity extends ActionBarActivity {
 								@Override
 								public void onClick(View v) {
 									seekValue = seekbar.getProgress();
-									seek.dismiss();
 									System.out.println(seekValue);
+									seek.dismiss();
+									
+									ArrayList<Double> distanceArray=new ArrayList<Double>();
+									ArrayList<Location> locationArray=new ArrayList<Location>();
+									ComputeDistanceBetween distanceBetween=new ComputeDistanceBetween();
+									int listExpensiveIndex=0;
+									double listExpensiveValue;
+									ArrayList<Location>samePrice=new ArrayList<Location>();
+									
+									switch (currentFilter){
+									
+									case 1: 
+										
+										for(int i=0;i<listElectricStations.size();i++){
+											
+											Double tempMarkerEle=Double.parseDouble(listElectricStations.get(i).getLatitude());
+										    Double tempMarkerLongEle=Double.parseDouble(listElectricStations.get(i).getLongitude());
+										    
+										    Double tempDistanceEle= distanceBetween.distance(location.getLatitude(), tempMarkerEle, location.getLongitude(), tempMarkerLongEle);
+										
+										    if(tempDistanceEle<=seekValue){
+										    	
+										    	locationArray.add(listElectricStations.get(i));
+										    }
+										}//fine for
+										
+										if(locationArray.size()!=0){
+											
+											listExpensiveValue=Double.parseDouble(locationArray.get(0).getPrice());
+										
+										for(int i=1;i<locationArray.size();i++){
+											
+											if(Double.parseDouble(locationArray.get(i).getPrice()) < listExpensiveValue)
+												listExpensiveValue=Double.parseDouble(locationArray.get(i).getPrice());
+											
+											}//fine for prezzi
+										
+										for(int i=0;i<locationArray.size();i++){
+											
+											if(Double.parseDouble(locationArray.get(i).getPrice())==listExpensiveValue)
+												samePrice.add(locationArray.get(i));
+										}//fine for stesso prezzo
+										
+                                        Double nearestDistance=distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePrice.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePrice.get(0).getLongitude()));
+										
+										for(int i=1;i<samePrice.size();i++){
+											
+											Double tempMarkerEle=Double.parseDouble(samePrice.get(i).getLatitude());
+										    Double tempMarkerLongEle=Double.parseDouble(samePrice.get(i).getLongitude());
+										    
+										    Double tempDistanceEle= distanceBetween.distance(location.getLatitude(), tempMarkerEle, location.getLongitude(), tempMarkerLongEle);
+										
+										    if(tempDistanceEle<=nearestDistance){
+										    	
+										    	nearestDistance=tempDistanceEle;
+										    	listExpensiveIndex=i;
+										    	
+										    }
+										}//fine prezzo piu' piccolo della lista
+										
+										Double latitudeNear=Double.parseDouble(samePrice.get(listExpensiveIndex).getLatitude());
+									    Double longitudeNear=Double.parseDouble(samePrice.get(listExpensiveIndex).getLongitude());
+									    
+									    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ latitudeNear + ","+ longitudeNear ));
+										startActivity(intent);
+										
+										}//fine if size
+										
+									}//fine switch
+									
 								}
 							});
 							
+							seek.show();
 							
-						}
+                        }
 					}
 				}
 				
@@ -535,7 +604,6 @@ public class MainActivity extends ActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}//Fine onOptionItemSelected
-	
 	
 	
 	
