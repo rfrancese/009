@@ -37,9 +37,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -86,6 +90,11 @@ public class MainActivity extends ActionBarActivity {
 	private NearestElectricAsyncTask nearestElectricService;
 	private NearestGPLAsyncTask nearestGPLService;
 	private NearestMethaneAsyncTask nearestMethaneService;
+	
+	private SeekBar seekbar;
+	private Button seekButton;
+	private TextView seekText;
+	private int seekValue;
 	
 	private int currentFilter; 
 	
@@ -454,15 +463,75 @@ public class MainActivity extends ActionBarActivity {
 			        				return true;
 			        				//*/
 							}// Fine switch
-						
-							
 						} else
 							Toast.makeText(getApplicationContext(), "Segnale GPS instabile.", Toast.LENGTH_LONG).show();
 					} else 
 						Toast.makeText(getApplicationContext(), "Errore di connessione ad Internet.", Toast.LENGTH_LONG).show();
 				} else
 					Toast.makeText(getApplicationContext(), "È necessario selezionare un filtro.", Toast.LENGTH_SHORT).show();
+				return true;
+			
+			case R.id.to_the_least_expensive_service:
+				if (this.listElectricStations.size() != 0 || this.listGPL.size() != 0 || this.listMethane.size() != 0) {
+					
+					//Verifica della presenza della connessione ad Internet
+					ConnectionDetector connectionDetector = new ConnectionDetector(getApplicationContext());
+					boolean internetPresent = connectionDetector.isConnectingToInternet();
 				
+					if (internetPresent) {
+						//Acquisisco le informazioni sulla posizione attuale 
+						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+						Criteria criteria = new Criteria();
+						android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+						if (location != null) {
+						
+							final Dialog seek = new Dialog(this);
+							seek.setContentView(R.layout.seekbar);
+							seek.show();
+							
+							this.seekbar = (SeekBar) seek.findViewById(R.id.seekBar1);
+							this.seekButton = (Button) seek.findViewById(R.id.button1);
+							this.seekText = (TextView) seek.findViewById(R.id.textView2);
+							this.seekText.setText("20 Km");
+							
+							this.seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+
+								@Override
+								public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+									int currentValue = seekBar.getProgress();
+									seekText.setText(currentValue + " Km");
+								}
+
+								@Override
+								public void onStartTrackingTouch(SeekBar seekBar) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void onStopTrackingTouch(SeekBar seekBar) {
+									// TODO Auto-generated method stub
+									
+								}
+								
+							});
+							
+							this.seekButton.setOnClickListener(new OnClickListener() {
+								
+								@Override
+								public void onClick(View v) {
+									seekValue = seekbar.getProgress();
+									seek.dismiss();
+									System.out.println(seekValue);
+								}
+							});
+							
+							
+						}
+					}
+				}
+				
+					
 		}
 		return super.onOptionsItemSelected(item);
 	}//Fine onOptionItemSelected
