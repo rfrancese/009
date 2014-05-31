@@ -87,11 +87,14 @@ public class MainActivity extends ActionBarActivity {
 	private PutMethaneMarkersAsyncTask putMethaneMarkersRequest;
 	private PutGPLMarkersAsyncTask putGPLMarkersRequest;
 	
+	@SuppressWarnings("unused")
 	private NearestElectricAsyncTask nearestElectricService;
+	@SuppressWarnings("unused")
 	private NearestGPLAsyncTask nearestGPLService;
+	@SuppressWarnings("unused")
 	private NearestMethaneAsyncTask nearestMethaneService;
 	
-	private SeekBar seekbar;
+	private SeekBar seekBar;
 	private Button seekButton;
 	private TextView seekText;
 	private int seekValue;
@@ -282,12 +285,12 @@ public class MainActivity extends ActionBarActivity {
 				
 				return true;
 					
-				
+			/********************************
+			* 	    ALLA PIU VICINA         *
+			********************************/
 			case R.id.to_the_nearest_service:
 				
-				//Toast.makeText(getApplicationContext(), "Richiesta del servizio: Portami alla più vicina.", Toast.LENGTH_SHORT).show();
-				
-				//Verifico se l'utente ha selezionato almeno una volta un filtro un filtro
+				//Verifico se l'utente ha selezionato almeno una volta un filtro 
 				if (this.listElectricStations.size() != 0 || this.listGPL.size() != 0 || this.listMethane.size() != 0) {
 					
 					//Verifica della presenza della connessione ad Internet
@@ -471,9 +474,12 @@ public class MainActivity extends ActionBarActivity {
 					Toast.makeText(getApplicationContext(), "È necessario selezionare un filtro.", Toast.LENGTH_SHORT).show();
 				return true;
 			
+			/********************************
+			* 	    ALLA MENO CARA          *
+			********************************/
 			case R.id.to_the_least_expensive_service:
 				
-				//Verifico se l'utente ha selezionato almeno una volta un filtro un filtro
+				//Verifico se l'utente ha selezionato almeno una volta un filtro 
 				if (this.listElectricStations.size() != 0 || this.listGPL.size() != 0 || this.listMethane.size() != 0) {
 					
 					//Verifica della presenza della connessione ad Internet
@@ -486,17 +492,18 @@ public class MainActivity extends ActionBarActivity {
 						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 						Criteria criteria = new Criteria();
 						final android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-						if (location != null) {
 						
-						    final Dialog seek = new Dialog(this);
+						if (location != null) {
+							final Dialog seek = new Dialog(this);
 							seek.setContentView(R.layout.seekbar);
 							seek.setTitle("Distanza Massima");
-							this.seekbar = (SeekBar) seek.findViewById(R.id.seekBar1);
+							this.seekBar = (SeekBar) seek.findViewById(R.id.seekBar1);
 							this.seekButton = (Button) seek.findViewById(R.id.button1);
 							this.seekText = (TextView) seek.findViewById(R.id.textView1);
 							this.seekText.setText("20 Km");
 							
-							this.seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+							//Listener SeekBar
+							this.seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 								@Override
 								public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -518,74 +525,85 @@ public class MainActivity extends ActionBarActivity {
 								
 							});
 							
+							//Listener Button
 							this.seekButton.setOnClickListener(new OnClickListener() {
 								
 								@Override
 								public void onClick(View v) {
-									seekValue = seekbar.getProgress();
+									seekValue = seekBar.getProgress();
 									System.out.println(seekValue);
 									seek.dismiss();
 									
-									//ArrayList degli oggetti Location che rientrano nel raggio specificato
-									ArrayList<Location> locationArray = new ArrayList<Location>();
-									
+									//Istanza della classe utilizzata per calcolare la distanza tra due Location
 									ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
 									
+									//ArrayList degli oggetti Location che rientrano nel range specificato
+									ArrayList<Location> inRange = new ArrayList<Location>();
+									
+									//Conterrà l'indice dell'oggetto Location con il prezzo meno caro
 									int leastExpensiveIndex = 0;
+									
+									//Conterràil prezzo meno caro
 									double leastExpensiveValue;
-									ArrayList<Location>samePriceArray = new ArrayList<Location>();
 									
-									switch (currentFilter){
+									//Conterrà gli oggetti Location con lo stesso prezzo come meno caro
+									ArrayList<Location> samePrice = new ArrayList<Location>();
 									
+									switch (currentFilter) {
+									
+									case 1:
+										Toast.makeText(MainActivity.this, "Servizio non disponbile per le colonnine elettriche.", Toast.LENGTH_SHORT).show();
+										
+									//GPL
 									case 2: 
 										
-										for(int i = 0; i<listGPL.size(); i++) {
-											
-											double tempMarkerGPL=Double.parseDouble(listGPL.get(i).getLatitude());
-										    double tempMarkerLongGPL=Double.parseDouble(listGPL.get(i).getLongitude());
+										//Filtro la lista completa degli oggetti Location prendendo solo quelli la cui distanza lineare dalla posizione attuale è minore del range indicato dall'utente
+										for(int i = 0; i < listGPL.size(); i++) {
+											double tempMarkerLatGPL		= Double.parseDouble(listGPL.get(i).getLatitude());
+										    double tempMarkerLonGPL		= Double.parseDouble(listGPL.get(i).getLongitude());
 										    
-										    double tempDistanceEle= distanceBetween.distance(location.getLatitude(), tempMarkerGPL, location.getLongitude(), tempMarkerLongGPL);
+										    double tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerLatGPL, location.getLongitude(), tempMarkerLonGPL);
 										
-										    if(tempDistanceEle<=seekValue){
-										    	
-										    	locationArray.add(listGPL.get(i));
-										    }
-										}//fine for
+										    if(tempDistanceGPL <= seekValue) 
+										    	inRange.add(listGPL.get(i));
+										}
 										
-										if(locationArray.size() != 0) {
+										//Verifico la presenza di stazioni GPL nel range specificato
+										if(inRange.size() != 0) {
 											
-											leastExpensiveValue = Double.parseDouble(locationArray.get(0).getPrice());
+											//Inizializzo la variabile con il prezzo del primo oggetto Location e la utilizzaerò per confronti successivi
+											leastExpensiveValue = Double.parseDouble(inRange.get(0).getPrice());
 										
-											//Cerco il prezzo minore
-											for(int i = 1; i < locationArray.size(); i++) {
+											//Cerco il prezzo meno caro
+											for(int i = 1; i < inRange.size(); i++) {
 												
-												if(isNumeric(locationArray.get(i).getPrice())){
-												
-												if(Double.parseDouble(locationArray.get(i).getPrice()) < leastExpensiveValue)
-													leastExpensiveValue = Double.parseDouble(locationArray.get(i).getPrice());
-											}
-											
-											}//fine if isNumeric
-										
-										    //Cerco gli oggetti Location con lo stesso prezzo
-											for(int i = 0; i < locationArray.size(); i++) {
-												if(isNumeric(locationArray.get(i).getPrice())){
+												//Verifico che la stringa di interesse possa essere convertita in un double
+												if(isNumeric(inRange.get(i).getPrice())) {
 													
-												if(Double.parseDouble(locationArray.get(i).getPrice()) == leastExpensiveValue)
-										    		samePriceArray.add(locationArray.get(i));
+													//Aggiorno il prezzo meno caro
+													if(Double.parseDouble(inRange.get(i).getPrice()) < leastExpensiveValue)
+														leastExpensiveValue = Double.parseDouble(inRange.get(i).getPrice());
 												}
-											}//fine if numeric
+											}
 										
-											//Cerco l'oggetto Location più vicino tra quelli con il prezzo minore
-											Double nearestDistance = distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePriceArray.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePriceArray.get(0).getLongitude()));
+											//Cerco gli oggetti Location con lo stesso prezzo e li prelievo
+											for(int i = 0; i < inRange.size(); i++) {
+											
+												if(isNumeric(inRange.get(i).getPrice())) {
+													
+													if(Double.parseDouble(inRange.get(i).getPrice()) == leastExpensiveValue)
+														samePrice.add(inRange.get(i));
+												}
+											}
 										
-											for(int i = 1; i < samePriceArray.size(); i++) {
-												double tempMarkerGPL = Double.parseDouble(samePriceArray.get(i).getLatitude());
-												double tempMarkerLongGPL = Double.parseDouble(samePriceArray.get(i).getLongitude());
-										    
-												System.out.println(samePriceArray.get(i).getPrice() + "//"+ Double.parseDouble(samePriceArray.get(i).getPrice()));
+											//Cerco l'oggetto Location più vicino tra quelli con il prezzo meno caro
+											double nearestDistance = distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePrice.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePrice.get(0).getLongitude()));
+										
+											for(int i = 1; i < samePrice.size(); i++) {
+												double tempMarkerLatGPL = Double.parseDouble(samePrice.get(i).getLatitude());
+												double tempMarkerLonGPL = Double.parseDouble(samePrice.get(i).getLongitude());
 												
-												double tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerGPL, location.getLongitude(), tempMarkerLongGPL);
+												double tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerLatGPL, location.getLongitude(), tempMarkerLonGPL);
 										
 												if(tempDistanceGPL <= nearestDistance) {
 													nearestDistance = tempDistanceGPL;
@@ -593,28 +611,103 @@ public class MainActivity extends ActionBarActivity {
 										    	}
 											}
 										
-											double latitudeNear = Double.parseDouble(samePriceArray.get(leastExpensiveIndex).getLatitude());
-											double longitudeNear = Double.parseDouble(samePriceArray.get(leastExpensiveIndex).getLongitude());
+											double latitude 	= Double.parseDouble(samePrice.get(leastExpensiveIndex).getLatitude());
+											double longitude 	= Double.parseDouble(samePrice.get(leastExpensiveIndex).getLongitude());
 									    
-											Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ latitudeNear + ","+ longitudeNear ));
+											inRange.clear();
+											samePrice.clear();
+											
+											Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ latitude + ","+ longitude));
 											startActivity(intent);
 										
 										} else
-											Toast.makeText(MainActivity.this, "Nel raggio indicato non ci sono stazioni di rifornimento GPL.", Toast.LENGTH_LONG).show();
+											Toast.makeText(MainActivity.this, "Nel range indicato non ci sono stazioni di rifornimento GPL.", Toast.LENGTH_LONG).show();
 										
-									}//fine switch
+									//Metano
+									case 3:
+										
+										//Filtro la lista completa degli oggetti Location prendendo solo quelli la cui distanza lineare dalla posizione attuale è minore del range indicato dall'utente
+										for(int i = 0; i < listMethane.size(); i++) {
+											double tempMarkerLatMethane		= Double.parseDouble(listMethane.get(i).getLatitude());
+										    double tempMarkerLonMethane		= Double.parseDouble(listMethane.get(i).getLongitude());
+										    
+										    double tempDistanceMethane = distanceBetween.distance(location.getLatitude(), tempMarkerLatMethane, location.getLongitude(), tempMarkerLonMethane);
+										
+										    if(tempDistanceMethane <= seekValue) 
+										    	inRange.add(listMethane.get(i));
+										}
+										
+										//Verifico la presenza di stazioni Metano nel range specificato
+										if(inRange.size() != 0) {
+											
+											//Inizializzo la variabile con il prezzo del primo oggetto Location e la utilizzaerò per confronti successivi
+											leastExpensiveValue = Double.parseDouble(inRange.get(0).getPrice());
+										
+											//Cerco il prezzo meno caro
+											for(int i = 1; i < inRange.size(); i++) {
+												
+												//Verifico che la stringa di interesse possa essere convertita in un double
+												if(isNumeric(inRange.get(i).getPrice())) {
+													
+													//Aggiorno il prezzo meno caro
+													if(Double.parseDouble(inRange.get(i).getPrice()) < leastExpensiveValue)
+														leastExpensiveValue = Double.parseDouble(inRange.get(i).getPrice());
+												}
+											}
+										
+											//Cerco gli oggetti Location con lo stesso prezzo e li prelievo
+											for(int i = 0; i < inRange.size(); i++) {
+											
+												if(isNumeric(inRange.get(i).getPrice())) {
+													
+													if(Double.parseDouble(inRange.get(i).getPrice()) == leastExpensiveValue)
+														samePrice.add(inRange.get(i));
+												}
+											}
+										
+											//Cerco l'oggetto Location più vicino tra quelli con il prezzo meno caro
+											double nearestDistance = distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePrice.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePrice.get(0).getLongitude()));
+										
+											for(int i = 1; i < samePrice.size(); i++) {
+												double tempMarkerLatMethane = Double.parseDouble(samePrice.get(i).getLatitude());
+												double tempMarkerLonMethane = Double.parseDouble(samePrice.get(i).getLongitude());
+												
+												double tempDistanceMethane = distanceBetween.distance(location.getLatitude(), tempMarkerLatMethane, location.getLongitude(), tempMarkerLonMethane);
+										
+												if(tempDistanceMethane <= nearestDistance) {
+													nearestDistance = tempDistanceMethane;
+													leastExpensiveIndex = i;
+										    	}
+											}
+										
+											double latitude 	= Double.parseDouble(samePrice.get(leastExpensiveIndex).getLatitude());
+											double longitude 	= Double.parseDouble(samePrice.get(leastExpensiveIndex).getLongitude());
+											
+											inRange.clear();
+											samePrice.clear();
+											
+											Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ latitude + ","+ longitude));
+											startActivity(intent);
+										
+										} else
+											Toast.makeText(MainActivity.this, "Nel range indicato non ci sono stazioni di rifornimento GPL.", Toast.LENGTH_LONG).show();
 									
-								}
-							});
+									
+									}//Fine switch
+								}//Fine onClick
+							});//Fine OnClickListener
 							
 							seek.show();
 							
-                        }
-					}
-				}
+                        } else
+							Toast.makeText(getApplicationContext(), "Segnale GPS instabile.", Toast.LENGTH_LONG).show();
+					} else 
+						Toast.makeText(getApplicationContext(), "Errore di connessione ad Internet.", Toast.LENGTH_LONG).show();
+				} else
+					Toast.makeText(getApplicationContext(), "È necessario selezionare un filtro.", Toast.LENGTH_SHORT).show();
+				return true;
 				
-					
-		}
+		}//Fine switch item id
 		return super.onOptionsItemSelected(item);
 	}//Fine onOptionItemSelected
 	
@@ -1356,12 +1449,11 @@ public class MainActivity extends ActionBarActivity {
 	
 	public static boolean isNumeric(String str)  
 	{  
-	  try  
-	  {  
-	    double d = Double.parseDouble(str);  
+	  try {  
+	    @SuppressWarnings("unused")
+		double d = Double.parseDouble(str);  
 	  }  
-	  catch(NumberFormatException nfe)  
-	  {  
+	  catch(NumberFormatException nfe) {  
 	    return false;  
 	  }  
 	  return true;  
