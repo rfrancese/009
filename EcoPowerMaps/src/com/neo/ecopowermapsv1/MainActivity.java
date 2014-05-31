@@ -472,6 +472,8 @@ public class MainActivity extends ActionBarActivity {
 				return true;
 			
 			case R.id.to_the_least_expensive_service:
+				
+				//Verifico se l'utente ha selezionato almeno una volta un filtro un filtro
 				if (this.listElectricStations.size() != 0 || this.listGPL.size() != 0 || this.listMethane.size() != 0) {
 					
 					//Verifica della presenza della connessione ad Internet
@@ -479,6 +481,7 @@ public class MainActivity extends ActionBarActivity {
 					boolean internetPresent = connectionDetector.isConnectingToInternet();
 				
 					if (internetPresent) {
+						
 						//Acquisisco le informazioni sulla posizione attuale 
 						LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 						Criteria criteria = new Criteria();
@@ -523,71 +526,71 @@ public class MainActivity extends ActionBarActivity {
 									System.out.println(seekValue);
 									seek.dismiss();
 									
-									ArrayList<Double> distanceArray=new ArrayList<Double>();
-									ArrayList<Location> locationArray=new ArrayList<Location>();
-									ComputeDistanceBetween distanceBetween=new ComputeDistanceBetween();
-									int listExpensiveIndex=0;
-									double listExpensiveValue;
-									ArrayList<Location>samePrice=new ArrayList<Location>();
+									//ArrayList degli oggetti Location che rientrano nel raggio specificato
+									ArrayList<Location> locationArray = new ArrayList<Location>();
+									
+									ComputeDistanceBetween distanceBetween = new ComputeDistanceBetween();
+									
+									int leastExpensiveIndex = 0;
+									double leastExpensiveValue;
+									ArrayList<Location>samePriceArray = new ArrayList<Location>();
 									
 									switch (currentFilter){
 									
-									case 1: 
+									case 2: 
 										
-										for(int i=0;i<listElectricStations.size();i++){
+										for(int i = 0; i<listGPL.size(); i++) {
 											
-											Double tempMarkerEle=Double.parseDouble(listElectricStations.get(i).getLatitude());
-										    Double tempMarkerLongEle=Double.parseDouble(listElectricStations.get(i).getLongitude());
+											double tempMarkerGPL=Double.parseDouble(listGPL.get(i).getLatitude());
+										    double tempMarkerLongGPL=Double.parseDouble(listGPL.get(i).getLongitude());
 										    
-										    Double tempDistanceEle= distanceBetween.distance(location.getLatitude(), tempMarkerEle, location.getLongitude(), tempMarkerLongEle);
+										    double tempDistanceEle= distanceBetween.distance(location.getLatitude(), tempMarkerGPL, location.getLongitude(), tempMarkerLongGPL);
 										
 										    if(tempDistanceEle<=seekValue){
 										    	
-										    	locationArray.add(listElectricStations.get(i));
+										    	locationArray.add(listGPL.get(i));
 										    }
 										}//fine for
 										
-										if(locationArray.size()!=0){
+										if(locationArray.size() != 0) {
 											
-											listExpensiveValue=Double.parseDouble(locationArray.get(0).getPrice());
+											leastExpensiveValue = Double.parseDouble(locationArray.get(0).getPrice());
 										
-										for(int i=1;i<locationArray.size();i++){
-											
-											if(Double.parseDouble(locationArray.get(i).getPrice()) < listExpensiveValue)
-												listExpensiveValue=Double.parseDouble(locationArray.get(i).getPrice());
-											
-											}//fine for prezzi
+											//Cerco il prezzo minore
+											for(int i = 1; i < locationArray.size(); i++) {
+												if(Double.parseDouble(locationArray.get(i).getPrice()) < leastExpensiveValue)
+													leastExpensiveValue = Double.parseDouble(locationArray.get(i).getPrice());
+											}
 										
-										for(int i=0;i<locationArray.size();i++){
-											
-											if(Double.parseDouble(locationArray.get(i).getPrice())==listExpensiveValue)
-												samePrice.add(locationArray.get(i));
-										}//fine for stesso prezzo
-										
-                                        Double nearestDistance=distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePrice.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePrice.get(0).getLongitude()));
-										
-										for(int i=1;i<samePrice.size();i++){
-											
-											Double tempMarkerEle=Double.parseDouble(samePrice.get(i).getLatitude());
-										    Double tempMarkerLongEle=Double.parseDouble(samePrice.get(i).getLongitude());
-										    
-										    Double tempDistanceEle= distanceBetween.distance(location.getLatitude(), tempMarkerEle, location.getLongitude(), tempMarkerLongEle);
-										
-										    if(tempDistanceEle<=nearestDistance){
-										    	
-										    	nearestDistance=tempDistanceEle;
-										    	listExpensiveIndex=i;
-										    	
+										    //Cerco gli oggetti Location con lo stesso prezzo
+											for(int i = 0; i < locationArray.size(); i++) {
+										    	if(Double.parseDouble(locationArray.get(i).getPrice()) == leastExpensiveValue)
+										    		samePriceArray.add(locationArray.get(i));
 										    }
-										}//fine prezzo piu' piccolo della lista
 										
-										Double latitudeNear=Double.parseDouble(samePrice.get(listExpensiveIndex).getLatitude());
-									    Double longitudeNear=Double.parseDouble(samePrice.get(listExpensiveIndex).getLongitude());
+											//Cerco l'oggetto Location più vicino tra quelli con il prezzo minore
+											Double nearestDistance = distanceBetween.distance(location.getLatitude(), Double.parseDouble(samePriceArray.get(0).getLatitude()), location.getLongitude(), Double.parseDouble(samePriceArray.get(0).getLongitude()));
+										
+											for(int i = 1; i < samePriceArray.size(); i++) {
+												double tempMarkerGPL = Double.parseDouble(samePriceArray.get(i).getLatitude());
+												double tempMarkerLongGPL = Double.parseDouble(samePriceArray.get(i).getLongitude());
+										    
+												double tempDistanceGPL = distanceBetween.distance(location.getLatitude(), tempMarkerGPL, location.getLongitude(), tempMarkerLongGPL);
+										
+												if(tempDistanceGPL <= nearestDistance) {
+													nearestDistance = tempDistanceGPL;
+													leastExpensiveIndex = i;
+										    	}
+											}
+										
+											double latitudeNear = Double.parseDouble(samePriceArray.get(leastExpensiveIndex).getLatitude());
+											double longitudeNear = Double.parseDouble(samePriceArray.get(leastExpensiveIndex).getLongitude());
 									    
-									    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ latitudeNear + ","+ longitudeNear ));
-										startActivity(intent);
+											Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q="+ latitudeNear + ","+ longitudeNear ));
+											startActivity(intent);
 										
-										}//fine if size
+										} else
+											Toast.makeText(MainActivity.this, "Nel raggio indicato non ci sono stazioni di rifornimento GPL.", Toast.LENGTH_LONG).show();
 										
 									}//fine switch
 									
