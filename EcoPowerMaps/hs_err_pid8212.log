@@ -1,0 +1,93 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  Internal Error (classFileParser.cpp:3494), pid=8212, tid=7532
+#  Error: ShouldNotReachHere()
+#
+# JRE version: 6.0_38-b05
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (20.13-b02 mixed mode windows-amd64 compressed oops)
+# If you would like to submit a bug report, please visit:
+#   http://java.sun.com/webapps/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000000000056d000):  JavaThread "Unknown thread" [_thread_in_vm, id=7532, stack(0x0000000001f70000,0x0000000002070000)]
+
+Stack: [0x0000000001f70000,0x0000000002070000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x000000000056d000 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=7532, stack(0x0000000001f70000,0x0000000002070000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Dynamic libraries:
+0x0000000000400000 - 0x000000000042f000 	C:\glassfish3\jdk\jre\bin\javaw.exe
+0x00007ffe69660000 - 0x00007ffe6980a000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007ffe68b90000 - 0x00007ffe68cca000 	C:\WINDOWS\system32\KERNEL32.DLL
+0x00007ffe66b40000 - 0x00007ffe66c4f000 	C:\WINDOWS\system32\KERNELBASE.dll
+0x00007ffe65610000 - 0x00007ffe65698000 	C:\WINDOWS\system32\apphelp.dll
+0x00007ffe55970000 - 0x00007ffe559bf000 	C:\WINDOWS\AppPatch\AppPatch64\AcGenral.DLL
+0x00007ffe68820000 - 0x00007ffe688c7000 	C:\WINDOWS\system32\msvcrt.dll
+0x00007ffe66810000 - 0x00007ffe6683b000 	C:\WINDOWS\SYSTEM32\SspiCli.dll
+0x00007ffe66ee0000 - 0x00007ffe66f31000 	C:\WINDOWS\system32\SHLWAPI.dll
+0x00007ffe694e0000 - 0x00007ffe69651000 	C:\WINDOWS\system32\USER32.dll
+0x00007ffe68d40000 - 0x00007ffe68eb8000 	C:\WINDOWS\system32\ole32.dll
+0x00007ffe673f0000 - 0x00007ffe68807000 	C:\WINDOWS\system32\SHELL32.dll
+0x00007ffe65fe0000 - 0x00007ffe65ffe000 	C:\WINDOWS\SYSTEM32\USERENV.dll
+0x00007ffe67320000 - 0x00007ffe673c5000 	C:\WINDOWS\system32\ADVAPI32.dll
+0x00007ffe5bf00000 - 0x00007ffe5bf1b000 	C:\WINDOWS\SYSTEM32\MPR.dll
+0x00007ffe66f40000 - 0x00007ffe67076000 	C:\WINDOWS\system32\RPCRT4.dll
+0x00007ffe688e0000 - 0x00007ffe68937000 	C:\WINDOWS\SYSTEM32\sechost.dll
+0x00007ffe68f10000 - 0x00007ffe690e6000 	C:\WINDOWS\SYSTEM32\combase.dll
+0x00007ffe690f0000 - 0x00007ffe69235000 	C:\WINDOWS\system32\GDI32.dll
+0x00007ffe669d0000 - 0x00007ffe669e4000 	C:\WINDOWS\SYSTEM32\profapi.dll
+0x00007ffe64e60000 - 0x00007ffe64eff000 	C:\WINDOWS\SYSTEM32\SHCORE.dll
+0x00007ffe68ed0000 - 0x00007ffe68f04000 	C:\WINDOWS\system32\IMM32.DLL
+0x00007ffe689a0000 - 0x00007ffe68ad9000 	C:\WINDOWS\system32\MSCTF.dll
+0x000000006d8c0000 - 0x000000006e07b000 	C:\glassfish3\jdk\jre\bin\server\jvm.dll
+0x00007ffe63e60000 - 0x00007ffe63e7f000 	C:\WINDOWS\SYSTEM32\WINMM.dll
+0x00007ffe63cc0000 - 0x00007ffe63cea000 	C:\WINDOWS\SYSTEM32\WINMMBASE.dll
+0x00007ffe66aa0000 - 0x00007ffe66aea000 	C:\WINDOWS\SYSTEM32\cfgmgr32.dll
+0x00007ffe65860000 - 0x00007ffe65886000 	C:\WINDOWS\SYSTEM32\DEVOBJ.dll
+0x000000006d830000 - 0x000000006d83e000 	C:\glassfish3\jdk\jre\bin\verify.dll
+0x000000006d450000 - 0x000000006d477000 	C:\glassfish3\jdk\jre\bin\java.dll
+0x000000006d880000 - 0x000000006d892000 	C:\glassfish3\jdk\jre\bin\zip.dll
+0x00007ffe68d30000 - 0x00007ffe68d37000 	C:\WINDOWS\system32\PSAPI.DLL
+
+VM Arguments:
+jvm_args: -Dfile.encoding=Cp1252 -Xbootclasspath:C:\Users\Alfonso\android-sdks\platforms\android-19\android.jar 
+java_command: com.neo.ecopowermapsv1.Test
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk1.7.0
+PATH=C:/glassfish3/jdk/bin/../jre/bin/server;C:/glassfish3/jdk/bin/../jre/bin;C:/glassfish3/jdk/bin/../jre/lib/amd64;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\ActiveState Komodo Edit 8\;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\OpenCL SDK\2.0\bin\x86;C:\Program Files (x86)\Intel\OpenCL SDK\2.0\bin\x64;C:\Program Files\MATLAB\R2013a\runtime\win64;C:\Program Files\MATLAB\R2013a\bin;C:\Program Files\nodejs\;C:\Program Files\nodejs\node_modules\;C:\Users\Alfonso\android-sdks\tools;C:\glassfish3\jdk\bin;C:\Program Files\Apache\apache-ant-1.9.3\bin;C:\Program Files\Apache\apache-tomcat-8.0.3\bin;C:\Users\Alfonso\android-sdks\platform-tools;C:\Users\Alfonso\git\BDSIR\.git;C:\Users\Alfonso\AppData\Roaming\npm;C:\Program Files\Eclipse Foundation\eclipse;
+USERNAME=Alfonso
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 8 , 64 bit Build 9200 
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 58 stepping 9, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, ht
+
+Memory: 4k page, physical 8271552k(5105656k free), swap 9582272k(6306772k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (20.13-b02) for windows-amd64 JRE (1.6.0_38-b05), built on Nov 14 2012 00:54:08 by "java_re" with MS VC++ 8.0 (VS2005)
+
+time: Sun May 11 22:31:17 2014
+elapsed time: 0 seconds
+
