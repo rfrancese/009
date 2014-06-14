@@ -10,19 +10,16 @@
           app:showAsAction="always" />
     <item android:id="@+id/action_electric_filter"
           android:title="@string/electric_station_title"
-          android:icon="@drawable/ic_car_electricity"
+          android:icon="@drawable/ic_car_electricity2"
           app:showAsAction="always" />
     <item android:id="@+id/action_gpl_filter"
           android:title="@string/gpl_title"
-          android:icon="@drawable/gpl"
+          android:icon="@drawable/gplnew"
           app:showAsAction="always" />
     <item android:id="@+id/action_important"
           android:title="@string/important_title"
           android:icon="@drawable/ic_green_star"
           app:showAsAction="always" />
-    <item android:id="@+id/action_settings"
-          android:title="@string/action_settings" 
-          app:showAsAction="ifRoom" />
     <item android:id="@+id/vista_setting"
           android:title="@string/vista" 
           app:showAsAction="ifRoom" />
@@ -34,5 +31,8 @@
           app:showAsAction="ifRoom" />
     <item android:id="@+id/favourite_setting"
           android:title="@string/favourite" 
+          app:showAsAction="ifRoom" />
+    <item android:id="@+id/segnala"
+          android:title="@string/action_segnala" 
           app:showAsAction="ifRoom" />
 </menu>

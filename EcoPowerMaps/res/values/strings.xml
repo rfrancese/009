@@ -27,6 +27,7 @@
     <string name="label_longitude">Longitudine</string>
     <string name="label_name">Nome</string>
     <string name="search">Cerca</string>
-    
+    <string name="intro">Scegli il tipo di distributore che preferisci da quelli presenti in basso! Una volta selezionati puoi premere sul distributore presente sulla mappa per avere informazioni. Puoi dirigerti verso il distributore premendo sulla descrizione. Se ti va prova anche le funzioni del menu pensate apposta per te!</string>
+    <string name="action_segnala">Segnala</string>
     
 </resources>

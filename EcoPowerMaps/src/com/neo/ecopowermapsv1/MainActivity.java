@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.ActionBar;
+import android.app.AlertDialog.Builder;
 import android.location.Criteria;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -30,6 +31,7 @@ import android.os.Bundle;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
@@ -52,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
 
 	private GoogleMap map;
 	private ActionBar actionBar;
+	private SharedPreferences remember;
 	
 	private ArrayList<Location>listMethane;
 	private ArrayList<Location>listGPL;
@@ -106,6 +109,7 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		this.remember=getSharedPreferences("begin",MODE_PRIVATE);
 		this.actionBar = getActionBar();
 		this.actionBar.show();
 		
@@ -130,6 +134,11 @@ public class MainActivity extends ActionBarActivity {
             
             sensorService = new SensorService(map);
         }
+        
+        
+        if(this.remember.getAll().isEmpty())
+        	firstOpen();
+        
 		
 		this.listElectricStations 	= new ArrayList<Location>();
 		this.listGPL				= new ArrayList<Location>();
@@ -1394,6 +1403,12 @@ public class MainActivity extends ActionBarActivity {
 		
 	//funzione che mi permette la creazione di un alert per la funzionalità vista
 	public void ChooseOption() {
+		
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+		android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+		if (location != null) {
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Informazione");
 		builder.setMessage("Tale funzione permette di cambiare lo stile della mappa scuotendo il device. Vuoi attivare questa funzione?");
@@ -1419,6 +1434,12 @@ public class MainActivity extends ActionBarActivity {
 		
 		AlertDialog alert = builder.create();
 		alert.show();
+		
+		}//fine location !=null
+		
+		else
+        Toast.makeText(this, "Il segnale GPS non è stabile", Toast.LENGTH_LONG).show();
+
 	}
 		
 		
@@ -1458,4 +1479,21 @@ public class MainActivity extends ActionBarActivity {
 	  }  
 	  return true;  
 	}
+	
+	
+	public void firstOpen(){
+		
+		AlertDialog.Builder alert= new AlertDialog.Builder(this);
+		alert.setTitle("Benvenuto");
+		alert.setMessage(R.string.intro);
+		alert.setPositiveButton(R.string.errorButton, null);
+		alert.setCancelable(false);
+		AlertDialog alertdialog=alert.create();
+		alertdialog.show();
+		
+		SharedPreferences.Editor editor=this.remember.edit();
+		editor.putString("inizio", "ok");
+		editor.apply();
+	}
+	
 }
