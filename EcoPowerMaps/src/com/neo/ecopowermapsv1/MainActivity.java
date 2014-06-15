@@ -649,6 +649,7 @@ public class MainActivity extends ActionBarActivity {
 										
 										} else
 											Toast.makeText(MainActivity.this, "Nel range indicato non ci sono stazioni di rifornimento GPL.", Toast.LENGTH_LONG).show();
+										break;
 										
 									//Metano
 									case 3:
@@ -718,7 +719,7 @@ public class MainActivity extends ActionBarActivity {
 										
 										} else
 											Toast.makeText(MainActivity.this, "Nel range indicato non ci sono stazioni di rifornimento Metano.", Toast.LENGTH_LONG).show();
-									
+										break;
 									
 									}//Fine switch
 								}//Fine onClick
