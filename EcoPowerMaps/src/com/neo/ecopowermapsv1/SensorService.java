@@ -75,7 +75,7 @@ public class SensorService {
 				
 				map.setMapType(types[casual]);
 				casual++;
-				Toast.makeText(context, "Il tipo di mappa è "+ nameTypes[map.getMapType()], Toast.LENGTH_SHORT).show();
+				//Toast.makeText(context, "Il tipo di mappa è "+ nameTypes[map.getMapType()], Toast.LENGTH_SHORT).show();
 				
 			}
 			

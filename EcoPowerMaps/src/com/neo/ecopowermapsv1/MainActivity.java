@@ -1,7 +1,14 @@
 package com.neo.ecopowermapsv1;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +51,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -64,6 +72,7 @@ public class MainActivity extends ActionBarActivity {
 	private final String gplURLRequest 		= "http://fanteam.altervista.org/request_gpl_data.php";
 	private final String electricURLRequest = "http://fanteam.altervista.org/request_electric_stations_data.php";
 	private final String nearestServiceURL  = "https://maps.googleapis.com/maps/api/distancematrix/json?";
+	private final String sendHelpRequest="http://fanteam.altervista.org/segnala.php";
 	
 	private Dialog currentDialog;
 	
@@ -81,6 +90,7 @@ public class MainActivity extends ActionBarActivity {
 	private int scelta = 0;
 	
 	private SensorService sensorService;
+	private SensorService tempService;
 	
 	private ListView listView;
 	
@@ -101,6 +111,9 @@ public class MainActivity extends ActionBarActivity {
 	private Button seekButton;
 	private TextView seekText;
 	private int seekValue;
+	private RadioButton methaneType,ElectricType,GplType;
+	private Button confirmType;
+	private String responseSend;
 	
 	private int currentFilter; 
 	
@@ -291,6 +304,11 @@ public class MainActivity extends ActionBarActivity {
 				
 				Intent lista = new Intent(MainActivity.this, FavouriteList.class);
 				startActivity(lista);
+				
+				return true;
+				
+			case R.id.segnala:
+				segnala();
 				
 				return true;
 					
@@ -507,7 +525,7 @@ public class MainActivity extends ActionBarActivity {
 							seek.setContentView(R.layout.seekbar);
 							seek.setTitle("Distanza Massima");
 							this.seekBar = (SeekBar) seek.findViewById(R.id.seekBar1);
-							this.seekButton = (Button) seek.findViewById(R.id.button1);
+							this.seekButton = (Button) seek.findViewById(R.id.segnalaInvia);
 							this.seekText = (TextView) seek.findViewById(R.id.textView1);
 							this.seekText.setText("20 Km");
 							
@@ -562,7 +580,7 @@ public class MainActivity extends ActionBarActivity {
 									
 									case 1:
 										Toast.makeText(MainActivity.this, "Servizio non disponbile per le colonnine elettriche.", Toast.LENGTH_SHORT).show();
-										
+										break;
 									//GPL
 									case 2: 
 										
@@ -699,7 +717,7 @@ public class MainActivity extends ActionBarActivity {
 											startActivity(intent);
 										
 										} else
-											Toast.makeText(MainActivity.this, "Nel range indicato non ci sono stazioni di rifornimento GPL.", Toast.LENGTH_LONG).show();
+											Toast.makeText(MainActivity.this, "Nel range indicato non ci sono stazioni di rifornimento Metano.", Toast.LENGTH_LONG).show();
 									
 									
 									}//Fine switch
@@ -1407,9 +1425,13 @@ public class MainActivity extends ActionBarActivity {
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		Criteria criteria = new Criteria();
 		android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+		tempService=sensorService;
+		
 		if (location != null) {
 		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        sensorService = new SensorService(map); //mi serve una nuova istanza
+        
+	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Informazione");
 		builder.setMessage("Tale funzione permette di cambiare lo stile della mappa scuotendo il device. Vuoi attivare questa funzione?");
 		builder.setCancelable(false);
@@ -1428,7 +1450,7 @@ public class MainActivity extends ActionBarActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				// TODO Auto-generated method stub
 				Toast.makeText(getBaseContext(), "Hai disattivato la funzione!", Toast.LENGTH_LONG).show();
-                sensorService.deActivate();
+                tempService.deActivate();
 			}
 		});
 		
@@ -1495,5 +1517,160 @@ public class MainActivity extends ActionBarActivity {
 		editor.putString("inizio", "ok");
 		editor.apply();
 	}
+	
+	
+	public void segnala(){
+		
+		AlertDialog.Builder alert=new AlertDialog.Builder(this);
+		alert.setTitle("Segnala");
+		alert.setMessage(R.string.message_segnala);
+		alert.setPositiveButton("Prosegui", new android.content.DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.dismiss();
+				chooseType();
+			}
+		});
+		
+		alert.setNegativeButton("Annulla", null);
+		alert.setCancelable(true);
+		
+		AlertDialog alertdialog=alert.create();
+		alertdialog.show();
+	}
+	
+	
+	public void chooseType(){
+		
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+		final android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+		
+		if (location != null) {
+		
+		final Dialog dialog= new Dialog(this);
+		dialog.setContentView(R.layout.type);
+		dialog.setTitle("Tipo Distributore");
+		this.methaneType = (RadioButton) dialog.findViewById(R.id.radioButton1);
+		this.ElectricType=(RadioButton)dialog.findViewById(R.id.radioButton2);
+		this.GplType=(RadioButton)dialog.findViewById(R.id.radioButton3);
+		this.confirmType = (Button) dialog.findViewById(R.id.segnalaInvia);
+		this.confirmType.setText("Invia Segnalazione");
+		
+		final String la=String.valueOf(location.getLatitude());
+		final String lo=String.valueOf(location.getLongitude());
+		
+		
+		this.confirmType.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				
+				if(methaneType.isChecked()){
+					
+					try {
+						responseSend= new SendData().execute(la,lo,"Metano").get();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                }
+				
+				if(ElectricType.isChecked()){
+					try {
+						responseSend= new SendData().execute(la,lo,"Colonnine").get();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+				
+				if(GplType.isChecked()){
+					
+					try {
+						responseSend= new SendData().execute(la,lo,"GPL").get();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+				
+				dialog.dismiss();
+		        Toast.makeText(MainActivity.this, responseSend, Toast.LENGTH_LONG).show();
+
+			}
+			
+		});
+		
+		dialog.show();
+		
+		}//fine if location!=null
+		
+		else
+	        Toast.makeText(this, "Il segnale GPS non è stabile", Toast.LENGTH_LONG).show();
+
+		
+	}
+	
+	
+	/*Classe che mi invia i dati*/
+	
+	public class SendData extends AsyncTask<String,Void,String>{
+
+		@Override
+		protected String doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			 JSONObject j = new JSONObject(); //creo l'oggetto json
+			 String temp="";
+	  		
+			  try {
+				  
+				  j.put("lat", params[0]); //ci metto i parametri
+				  j.put("long", params[1]);
+				  j.put("tipo", params[2]);
+				  
+	             }catch(JSONException e){
+	           	  
+	           	  e.printStackTrace();
+	           	  
+	             }try{
+	            	 
+	                Map<String, String> kvPairs = new HashMap<String, String>();
+	                kvPairs.put("segnalazione", j.toString());
+	                HttpResponse re = HTTPPoster.doPost(sendHelpRequest, kvPairs);
+	                temp = EntityUtils.toString(re.getEntity());
+	                
+	             } catch(ClientProtocolException e){
+
+	    			  e.printStackTrace();
+	    			  
+	             }
+
+	    		  catch(IOException e){
+
+	    			  e.printStackTrace();
+	            }      
+
+	              if (temp.compareTo("")==0)
+	                   return "La tua richiesta è stata inviata!";
+	              else
+	                 return "Server al momento non disponibile!";
+		}
+		
+		
+	}//fine sendData
 	
 }
