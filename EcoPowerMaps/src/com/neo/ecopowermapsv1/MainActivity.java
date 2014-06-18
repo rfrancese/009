@@ -1426,7 +1426,7 @@ public class MainActivity extends ActionBarActivity {
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		Criteria criteria = new Criteria();
 		android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-		tempService=sensorService;
+		tempService=sensorService; //all'inizio è null
 		
 		if (location != null) {
 		
@@ -1451,7 +1451,11 @@ public class MainActivity extends ActionBarActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				// TODO Auto-generated method stub
 				Toast.makeText(getBaseContext(), "Hai disattivato la funzione!", Toast.LENGTH_LONG).show();
-                tempService.deActivate();
+                
+				if(tempService==null)
+					tempService=sensorService;
+				
+				tempService.deActivate();
 			}
 		});
 		
