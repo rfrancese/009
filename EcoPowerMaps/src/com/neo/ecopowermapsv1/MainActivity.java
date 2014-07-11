@@ -1236,9 +1236,9 @@ public class MainActivity extends ActionBarActivity {
 			LatLng coor = new LatLng(latitudine, longitudine);
 				
 			if(this.scelta == 1)
-				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_red)));
+				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_red)));
 			else
-				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_green)));	
+				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_green)));	
 				
 			//map.setOnMarkerClickListener(this);
 				
@@ -1334,13 +1334,13 @@ public class MainActivity extends ActionBarActivity {
 								.position(coor)
 								.title(this.formattedAddress)
 								.snippet("Provider: " + this.provider + "\nPrese: " + this.jacks + "\n" + Html.fromHtml(getResources().getString(R.string.enel_drive)))
-								.icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_blue)));																			
+								.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_blue)));																			
 			else
 				map.addMarker(new MarkerOptions()
 								.position(coor)
 								.title(this.formattedAddress)
 								.snippet("Provider: " + this.provider + "\nPrese: " + this.jacks + "\nDescrizione: " + this.description + "\n" + Html.fromHtml(getResources().getString(R.string.enel_drive)))
-								.icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_blue)));
+								.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_blue)));
 					
 			//map.setOnMarkerClickListener(this);
 				
@@ -1369,7 +1369,7 @@ public class MainActivity extends ActionBarActivity {
 						public void onInfoWindowClick(Marker marker) {
 							// TODO Auto-generated method stub
 		                	//avvio il navigatore
-		                	String[] names = {"Vai al distributore","Salva nei preferiti"};
+		                	String[] names = {"Indicazioni stradali","Salva nei preferiti"};
 		           			currentDialog = new Dialog(MainActivity.this);
 		           			currentDialog.setContentView(R.layout.scelta);
 		           			currentDialog.setTitle("Cosa vuoi fare?");
