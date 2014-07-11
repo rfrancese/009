@@ -30,5 +30,6 @@
     <string name="intro">Scegli il tipo di distributore che preferisci da quelli presenti in basso! Una volta selezionati puoi premere sul distributore presente sulla mappa per avere informazioni. Puoi dirigerti verso il distributore premendo sulla descrizione. Se ti va prova anche le funzioni del menu pensate apposta per te!</string>
     <string name="action_segnala">Segnala</string>
     <string name="message_segnala">La funzione Segnala e\' un modo per aiutare noi sviluppatori a migliorare il sistema. Per segnalare un distributore assicurati di essere nel distributore che non e\' sulla mappa, dopodiche\' prosegui per indicarci il tipo del distributore. A breve controlleremo la segnalazione. Ogni vostro aiuto per noi e\' importante, grazie.</string>
+    <string name="enel_drive">https://www.eneldrive.it/come-ricaricare</string>
     
 </resources>

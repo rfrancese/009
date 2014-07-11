@@ -42,6 +42,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -1235,9 +1236,9 @@ public class MainActivity extends ActionBarActivity {
 			LatLng coor = new LatLng(latitudine, longitudine);
 				
 			if(this.scelta == 1)
-				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€"));
+				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_red)));
 			else
-				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));	
+				map.addMarker(new MarkerOptions().position(coor).title(this.address).snippet("Prezzo: "+this.price+"€").icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_green)));	
 				
 			//map.setOnMarkerClickListener(this);
 				
@@ -1332,14 +1333,14 @@ public class MainActivity extends ActionBarActivity {
 				map.addMarker(new MarkerOptions()
 								.position(coor)
 								.title(this.formattedAddress)
-								.snippet("Provider: " + this.provider + "\nPrese: " + this.jacks)
-								.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));																			
+								.snippet("Provider: " + this.provider + "\nPrese: " + this.jacks + "\n" + Html.fromHtml(getResources().getString(R.string.enel_drive)))
+								.icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_blue)));																			
 			else
 				map.addMarker(new MarkerOptions()
 								.position(coor)
 								.title(this.formattedAddress)
-								.snippet("Provider: " + this.provider + "\nPrese: " + this.jacks + "\nDescrizione: " + this.description)
-								.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+								.snippet("Provider: " + this.provider + "\nPrese: " + this.jacks + "\nDescrizione: " + this.description + "\n" + Html.fromHtml(getResources().getString(R.string.enel_drive)))
+								.icon(BitmapDescriptorFactory.defaultMarker(R.drawable.ic_marker_blue)));
 					
 			//map.setOnMarkerClickListener(this);
 				
